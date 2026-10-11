@@ -1,0 +1,31 @@
+{
+  "allowedOrigins": [
+    "http://localhost:4000",
+    "http://localhost:4001",
+    "http://127.0.0.1:4000",
+    "http://127.0.0.1:4001"
+  ],
+  "allowedRoutes": ["/", "/app/**"],
+  "blockedRoutes": ["/app/admin/**", "/app/admin", "/__chaos", "/__chaos/**"],
+  "allowedActions": ["click", "type", "select", "press", "read", "wait", "goto"],
+  "allowVisualFallback": false,
+  "irreversible": {
+    "discovery": "require_human_approval",
+    "replay": "require_approved_artifact_and_caller_confirmation"
+  },
+  "riskHints": [
+    {
+      "textMatches": "submit|confirm|post|delete|close account|transfer|reset",
+      "risk": "irreversible"
+    }
+  ],
+  "sensitiveLabels": [
+    "SSN",
+    "Account Number",
+    "Balance",
+    "Password",
+    "Name",
+    "Opening Deposit",
+    "New Account Number"
+  ]
+}
