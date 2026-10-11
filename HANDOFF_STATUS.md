@@ -1,6 +1,6 @@
 # Handoff status
 
-**Current milestone:** 5 (discovery and compiler)
+**Current milestone:** 6 (escalation)
 **Model spend so far:** $0.00
 
 ## Milestones
@@ -12,7 +12,7 @@
 | 2   | Surface and resolver               | done                                   |
 | 3   | Schemas, policy, redaction, logger | done                                   |
 | 4   | Replay engine                      | done                                   |
-| 5   | Discovery and compiler             | not started                            |
+| 5   | Discovery and compiler             | done                                   |
 | 6   | Escalation                         | not started                            |
 | 7   | Real evidence runs                 | not started, needs `ANTHROPIC_API_KEY` |
 | 8   | Docs                               | not started                            |
@@ -31,6 +31,8 @@
   - recovered in line: interstitial, session expiry (re-login and restart), slow load
   - failures: `INVALID_INPUT` (UI never touched), `APP_ERROR` with masked screenshot and observation, `UNEXPECTED_STATE`, `RECOVERY_EXHAUSTED`, `TARGET_AMBIGUOUS`, `RETRY_UNSAFE` (session expiry mid-submit), `POLICY_BLOCKED`, `NOT_APPROVED`, `MISSING_SECRET`
 - `npm run replay` and `npm run approve` work from the CLI, with exit codes 0/10/20.
+- Discovery runs end to end with `--llm fake`. Sign-on is replayed, then the agent loop runs, the compiler builds the capability, a probe adds `MEMBER_NOT_FOUND`, and the self-check replay passes. The saved capability replays for other members. No literal input appears in it.
+- `AnthropicBrain` is ready (strict tools, spend cap, redacted transcript) but has not made a real call yet. That needs `ANTHROPIC_API_KEY` (milestone 7).
 - `DesktopSurface` stub implements the interface and maps each method to Windows UI Automation.
 
 ## What fails
