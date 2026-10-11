@@ -177,9 +177,17 @@ export async function discover(o: DiscoverOptions): Promise<DiscoverResult> {
   }
 
   // Compile.
+  // Enum values are part of the input contract (the list of allowed options), so they may appear.
+  const isEnum = (name: string) => spec.inputs[name]?.spec.type === 'enum';
   const forbidden = [
-    ...Object.values(spec.inputs).map((i) => i.value),
-    ...spec.probes.flatMap((p) => Object.values(p)),
+    ...Object.entries(spec.inputs)
+      .filter(([k]) => !isEnum(k))
+      .map(([, i]) => i.value),
+    ...spec.probes.flatMap((p) =>
+      Object.entries(p)
+        .filter(([k]) => !isEnum(k))
+        .map(([, v]) => v),
+    ),
     ...secretNames.map((n) => secrets.get(n) ?? '').filter(Boolean),
     ...Object.values(result.trace.outputs).flatMap((v) =>
       typeof v === 'object' ? [] : [String(v)],
