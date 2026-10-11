@@ -56,3 +56,23 @@ describe('GuardedSurface with network routing', () => {
     expect(after.elements.some((e) => e.name.includes('Reset All Operator Passwords'))).toBe(false);
   });
 });
+
+describe('GuardedSurface lease enforcement', () => {
+  it('rejects an action from an actor that does not hold the lease, before anything else runs', async () => {
+    const { GuardedSurface } = await import('../../src/policy/guarded-surface.js');
+    const { DesktopSurface } = await import('../../src/surface/desktop.js');
+    const { LeaseViolationError } = await import('../../src/session/lease.js');
+    const surface = new GuardedSurface(new DesktopSurface(), loadPolicy(), { mode: 'replay' });
+    await expect(surface.act({ type: 'pointer', x: 1, y: 1 }, 'human')).rejects.toThrow(
+      LeaseViolationError,
+    );
+    surface.lease.transfer('human', 'operator took control');
+    await expect(surface.act({ type: 'click', ref: 'e1' }, 'automation')).rejects.toThrow(
+      /automation does not hold the control lease/,
+    );
+    surface.lease.transfer('none', 'paused');
+    await expect(surface.act({ type: 'click', ref: 'e1' }, 'automation')).rejects.toThrow(
+      LeaseViolationError,
+    );
+  });
+});

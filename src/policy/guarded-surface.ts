@@ -1,5 +1,5 @@
 // GuardedSurface wraps any Surface so that no code path reaches act() without
-// passing the policy gate. Discovery, replay and the operator console all hold
+// holding the control lease and passing the policy gate. Discovery, replay and the operator console all hold
 // a GuardedSurface, never the raw one.
 
 import type { Policy } from '../schema/policy.js';
@@ -15,6 +15,7 @@ import type {
   ResolveOptions,
   Surface,
 } from '../surface/types.js';
+import { ControlLease } from '../session/lease.js';
 import { checkAction, type GateDecision, type GateRequest, type Mode } from './gate.js';
 
 export interface RunPolicyContext {
@@ -47,6 +48,8 @@ export type DecisionListener = (req: GateRequest, decision: GateDecision) => voi
 
 export class GuardedSurface implements Surface {
   readonly kind;
+  /** Who may act on this session right now. Checked before the policy gate. */
+  readonly lease = new ControlLease('automation');
   private last: Observation | undefined;
 
   constructor(
@@ -72,6 +75,7 @@ export class GuardedSurface implements Surface {
   }
 
   async act(action: Action, actor: Actor, step: StepPolicyContext = {}): Promise<ActResult> {
+    this.lease.assertHeld(actor);
     const req = this.buildRequest(action, actor, step);
     const decision = checkAction(this.policy, req);
     this.onDecision(req, decision);
