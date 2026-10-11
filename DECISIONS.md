@@ -35,3 +35,14 @@ One line per decision: the choice, what was rejected, and why.
 - **Tables get a `label_anchor` too.** The Accounts table has no accessible name, so it is found by the text above it, the same rule as unlabeled inputs.
 - **The observation hash ignores geometry.** It covers frame URLs plus every element's role, name and value, so a re-render with identical content counts as the same screen (dead-end detection) while any content change does not.
 - **Chromium executable:** Playwright's bundled browser when installed, else `CHROMIUM_PATH`, else `/opt/pw-browsers/chromium`. The cloud sandbox ships an older Chromium build than Playwright 1.64 expects, and all tests pass on it.
+- **Hand-written flow capabilities live in `tests/fixtures`, not `/capabilities`.** `/capabilities` holds only what discovery produces, plus the parts no discovery run would produce: the app profile, `auth.login` and the tenant overlays. The replay engine is built and tested against the fixtures first.
+- **`textMap` renames whole strings only.** Rejected substring replacement, which would turn "Member Search" into "Member Find" when "Search" maps to "Find".
+- **Credentials are mapped per tenant in the overlay** (`secrets.operatorPassword -> env MEMBERDESK_OPERATOR_PASSWORD`). Each institution has its own credentials, so the capability holds a binding and the overlay says where that tenant's value comes from.
+- **Capabilities declare an `entry` (path plus ready matcher) and named preconditions.** Every replay starts from a known screen, and `auth.login` is just another capability.
+- **Value bindings are `inputs.*`, `secrets.*` or `const`.** `const` exists for fixed, non-sensitive values such as a key name. The leak test guards that no demo input appears anywhere in an artifact.
+- **The network layer enforces the route blocklist, not just origins.** Clicking the Administration link is aborted at the network even though the click itself looked harmless.
+- **Risk hints only raise risk.** The gate takes the higher of the declared risk and the hint, so an under-declared Submit is still treated as irreversible.
+- **Logs never contain a full observation.** `run.jsonl` holds intents, target descriptors, decisions and redacted values. Full element lists are saved as separate scrubbed files only on failure or at checkpoints.
+- **Known-value redaction plus pattern scrubbing.** Patterns alone cannot recognise a member's name, and known values alone miss data nobody registered, so both run on every write.
+- **Generated JSON Schemas are committed under `/schemas`, with a test that fails when they go stale.** A calling agent reads the contract there without reading TypeScript.
+- **`pngjs` for screenshot masking.** Rejected Playwright's `mask` option, which needs selectors, and `sharp`, which is a native dependency.
