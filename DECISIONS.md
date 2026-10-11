@@ -66,3 +66,14 @@ One line per decision: the choice, what was rejected, and why.
 - **Model-proposed expectations are verified, and a text diff is the fallback.** The proposal must hold after the step and not before it. Otherwise the compiler takes the first stable, digit-free text that is new on screen.
 - **Probe runs reuse the replay engine's escalation seam.** A capturing "escalation" records the unrecognised screen and aborts, then the model classifies that one screen. The proposed matcher must match the probe screen and not the happy-path screen.
 - **A self-check that stops at the irreversible step with POLICY_BLOCKED still counts as a pass.** An unapproved draft can never replay past Submit, by design.
+- **The lease check lives in `GuardedSurface.act`, ahead of the policy gate.** One check answers "who is in control", for automation and humans alike. While a run is paused nobody holds the lease, so neither side can act until an operator explicitly takes control.
+- **One control state machine per live session, not per intervention.** A failed resume check moves the same session back to PAUSED, and a second failure moves it to FAILED. The state and the lease owner are derived from each other, so they can never disagree.
+- **The operator hub runs in the process that owns the browser.** The human's clicks are `Surface.act(action, 'human')` on the same session, recorded by the same logger with the element under the pointer. Rejected a separate operator service, which would need a remote-browser protocol for a demo that has one operator.
+- **The live view is unmasked and the saved screenshots are masked.** The operator is the person being asked to act on the record. Anything written to disk follows the redaction rules.
+- **Typed text from a human is logged as its length only.** It may be a password.
+- **Probe replays and real escalations share one interface (`Escalation.request`).** A probe is just an escalation that captures the screen and aborts.
+- **On "continue", the engine re-checks the step's expectation.** If the screen still does not match, it escalates once more with that explanation, then fails. Rejected trusting the human's word, because a handback is a claim about state and claims get verified.
+- **Discovery approvals are their own request kind (`approval`).** They offer approve and reject, not take control: the question is "may this irreversible click happen", not "fix the screen".
+- **The CLI blocks while a human has control.** A production caller would get an immediate `needs_human` handle and resume asynchronously. That is a transport choice, and the hub and state machine stay the same.
+- **No `npm run operator` standalone command.** The console only means something next to a live session, so it starts automatically with `replay` and `discover` (`--no-operator` turns it off).
+- **Enum input values are exempt from the leak check.** "Money Market" is one of the allowed options in the input contract, not leaked data.

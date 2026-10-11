@@ -1,6 +1,6 @@
 # Handoff status
 
-**Current milestone:** 6 (escalation)
+**Current milestone:** 7 (real evidence runs, needs `ANTHROPIC_API_KEY`)
 **Model spend so far:** $0.00
 
 ## Milestones
@@ -13,7 +13,7 @@
 | 3   | Schemas, policy, redaction, logger | done                                   |
 | 4   | Replay engine                      | done                                   |
 | 5   | Discovery and compiler             | done                                   |
-| 6   | Escalation                         | not started                            |
+| 6   | Escalation                         | done                                   |
 | 7   | Real evidence runs                 | not started, needs `ANTHROPIC_API_KEY` |
 | 8   | Docs                               | not started                            |
 
@@ -33,6 +33,7 @@
 - `npm run replay` and `npm run approve` work from the CLI, with exit codes 0/10/20.
 - Discovery runs end to end with `--llm fake`. Sign-on is replayed, then the agent loop runs, the compiler builds the capability, a probe adds `MEMBER_NOT_FOUND`, and the self-check replay passes. The saved capability replays for other members. No literal input appears in it.
 - `AnthropicBrain` is ready (strict tools, spend cap, redacted transcript) but has not made a real call yet. That needs `ANTHROPIC_API_KEY` (milestone 7).
+- Escalation and handoff: replay and discovery raise intervention requests to an operator console on :4100, served by the process that owns the browser. The scripted operator test takes control of the live session, clicks Acknowledge on the unknown dialog, hands back with retry, and the run finishes with `success` and the intervention listed in `meta`. A wrong-actor action is rejected by the lease. Human actions appear in `run.jsonl`. A failed resume check re-escalates once, then fails. Abort and timeout are covered. Discovery pauses at Submit until a human approves.
 - `DesktopSurface` stub implements the interface and maps each method to Windows UI Automation.
 
 ## What fails
