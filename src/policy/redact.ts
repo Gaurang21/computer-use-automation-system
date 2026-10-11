@@ -127,7 +127,9 @@ export function sensitiveBoxes(
         isSensitiveLabel(headers.get(`${e.table.tableRef}:${e.table.col}`))
       )
         return true;
-      if (isSensitiveLabel(e.nearText?.text) && e.role !== 'table') return true;
+      // Loose text takes its label from the left only ("Name: Avery"); text above it is usually another row's label.
+      const labelled = e.role === 'text' ? e.nearText?.relation === 'left_of' : e.role !== 'table';
+      if (labelled && isSensitiveLabel(e.nearText?.text)) return true;
       if (e.states.includes('protected')) return true;
       const text = `${e.name} ${e.value ?? ''}`;
       if (scrubPatterns(text) !== text) return true;

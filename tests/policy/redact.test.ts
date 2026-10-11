@@ -126,3 +126,26 @@ describe('leak check: no input value or secret in any artifact', () => {
     expect(findLeaks(readFileSync(file, 'utf8'), forbidden)).toEqual([]);
   });
 });
+
+describe('screenshot masking precision', () => {
+  it('does not mask a label just because a sensitive label sits above it', () => {
+    const obs: Observation = {
+      location: 'http://x/',
+      frames: [],
+      hash: 'h',
+      takenAt: '',
+      elements: [
+        {
+          ref: 'l',
+          role: 'text',
+          name: 'Member ID',
+          nearText: { text: 'Name', relation: 'above' },
+          framePath: ['main'],
+          bbox: { x: 1, y: 30, w: 5, h: 5 },
+          states: [],
+        },
+      ],
+    };
+    expect(sensitiveBoxes(obs, ['Name'])).toEqual([]);
+  });
+});
