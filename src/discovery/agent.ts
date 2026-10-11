@@ -44,18 +44,17 @@ export interface DiscoveryTrace {
 }
 
 /** How discovery asks a human: on a dead end, or before an irreversible step. */
+export interface DiscoveryEscalationContext {
+  reason: string;
+  observation: Observation;
+  step: number;
+  surface: GuardedSurface;
+  logger: RunLogger;
+}
+
 export interface DiscoveryEscalation {
-  stuck(ctx: {
-    reason: string;
-    observation: Observation;
-    step: number;
-  }): Promise<'resume' | 'abort'>;
-  approve(ctx: {
-    action: string;
-    reason: string;
-    observation: Observation;
-    step: number;
-  }): Promise<'approve' | 'reject'>;
+  stuck(ctx: DiscoveryEscalationContext): Promise<'resume' | 'abort'>;
+  approve(ctx: DiscoveryEscalationContext & { action: string }): Promise<'approve' | 'reject'>;
 }
 
 export interface AgentOptions {
@@ -156,7 +155,13 @@ export async function runAgent(o: AgentOptions): Promise<DiscoveryTrace> {
           : `dead end: "${signature(call)}" repeated ${repeats} times on the same screen`;
       o.logger.event({ actor: 'automation', type: 'escalate', detail: { step: stepNo, reason } });
       if (!o.escalation) return finish('stuck', reason);
-      const decision = await o.escalation.stuck({ reason, observation: obs, step: stepNo });
+      const decision = await o.escalation.stuck({
+        reason,
+        observation: obs,
+        step: stepNo,
+        surface: o.surface,
+        logger: o.logger,
+      });
       if (decision === 'abort') return finish('aborted', reason);
       seen.clear();
       history.push({
@@ -184,6 +189,8 @@ export async function runAgent(o: AgentOptions): Promise<DiscoveryTrace> {
           reason: err.message,
           observation: obs,
           step: stepNo,
+          surface: o.surface,
+          logger: o.logger,
         });
         if (verdict === 'reject') {
           step.result = 'a human rejected this irreversible action';
