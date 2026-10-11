@@ -46,3 +46,10 @@ One line per decision: the choice, what was rejected, and why.
 - **Known-value redaction plus pattern scrubbing.** Patterns alone cannot recognise a member's name, and known values alone miss data nobody registered, so both run on every write.
 - **Generated JSON Schemas are committed under `/schemas`, with a test that fails when they go stale.** A calling agent reads the contract there without reading TypeScript.
 - **`pngjs` for screenshot masking.** Rejected Playwright's `mask` option, which needs selectors, and `sharp`, which is a native dependency.
+- **After any click, key press or goto, replay waits for the screen to change (observation hash, capped at 1.5 s).** Without it, the next classification could see the stale page. A real case: the maintenance notice is still on screen just after its Continue was clicked, which counts as a second occurrence. Rejected waiting on browser navigation events, which are web-only. The hash check works on any surface.
+- **Outcomes scoped to a step are also checked when that step's target is missing.** "No savings account" shows up as a missing table row, not as a new screen, so the classifier runs before TARGET_NOT_FOUND is declared.
+- **TARGET_AMBIGUOUS fails at once instead of waiting out the timeout.** Two savings rows will not become one by waiting.
+- **Recoveries that re-run work (`retry_step`, `restart`) check retry safety. `continue` recoveries do not.** Dismissing an interstitial replays the request it interrupted, which was never processed, so it cannot duplicate a write.
+- **A read step registers the value it reads for redaction before the action is logged.** A test caught the member's name leaking into `run.jsonl` through the logged element description.
+- **The approve command is part of the core, not deferred to stretch.** The irreversible-step policy depends on approval, so the open sub-account replay could never reach Submit without it.
+- **Precondition and recovery sub-flows prefix their step ids (`auth.login:s3`).** A failure inside the login says so, instead of claiming step s3 of the main flow.
