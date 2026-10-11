@@ -5,6 +5,8 @@ import { AppProfile } from '../src/schema/app-profile.js';
 import { Capability } from '../src/schema/capability.js';
 import { StateMatcher } from '../src/schema/matcher.js';
 import { TenantOverlay } from '../src/schema/overlay.js';
+import { EXPORTED, toJsonSchema } from '../src/schema/export.js';
+import { RunResult, exitCodeFor } from '../src/schema/result.js';
 
 const read = (path: string): unknown => JSON.parse(readFileSync(path, 'utf8'));
 const capDirs = ['capabilities/memberdesk', 'tests/fixtures/capabilities'];
@@ -64,5 +66,48 @@ describe('artifact schemas', () => {
       }).success,
     ).toBe(true);
     expect(StateMatcher.safeParse({ textPresent: 'x', css: '#id' }).success).toBe(false);
+  });
+
+  it.each(Object.entries(EXPORTED))(
+    'committed JSON Schema for %s is up to date (npm run schemas)',
+    (name, schema) => {
+      const committed = read(`schemas/${name}.schema.json`);
+      expect(committed).toEqual(JSON.parse(JSON.stringify(toJsonSchema(schema))));
+    },
+  );
+
+  it('maps result statuses to CLI exit codes 0, 10, 20', () => {
+    const meta = {
+      runId: 'r',
+      capabilityId: 'c',
+      version: '1.0.0',
+      effectiveHash: 'h',
+      tenantId: 't',
+      startedAt: new Date().toISOString(),
+      durationMs: 1,
+      warnings: [],
+      recoveries: [],
+      locatorDrift: [],
+      humanInterventions: [],
+    };
+    const ok = RunResult.parse({ status: 'success', outputs: {}, meta });
+    const biz = RunResult.parse({
+      status: 'business_outcome',
+      code: 'X',
+      message: 'm',
+      atStep: 's1',
+      meta,
+    });
+    const fail = RunResult.parse({
+      status: 'failure',
+      code: 'APP_ERROR',
+      atStep: 's1',
+      expected: 'e',
+      observed: 'o',
+      retryable: false,
+      evidence: { log: 'run.jsonl' },
+      meta,
+    });
+    expect([ok, biz, fail].map(exitCodeFor)).toEqual([0, 10, 20]);
   });
 });

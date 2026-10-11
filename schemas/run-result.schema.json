@@ -1,0 +1,262 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "const": "success"
+        },
+        "outputs": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {}
+        },
+        "meta": {
+          "$ref": "#/$defs/__schema0"
+        }
+      },
+      "required": [
+        "status",
+        "outputs",
+        "meta"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "const": "business_outcome"
+        },
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "atStep": {
+          "type": "string"
+        },
+        "details": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {}
+        },
+        "meta": {
+          "$ref": "#/$defs/__schema0"
+        }
+      },
+      "required": [
+        "status",
+        "code",
+        "message",
+        "atStep",
+        "meta"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "const": "failure"
+        },
+        "code": {
+          "type": "string",
+          "enum": [
+            "INVALID_INPUT",
+            "NOT_APPROVED",
+            "CAPABILITY_DISABLED",
+            "POLICY_BLOCKED",
+            "APP_VERSION_UNSUPPORTED",
+            "MISSING_SECRET",
+            "TARGET_NOT_FOUND",
+            "TARGET_AMBIGUOUS",
+            "UNEXPECTED_STATE",
+            "RECOVERY_EXHAUSTED",
+            "RETRY_UNSAFE",
+            "APP_ERROR",
+            "OUTPUT_PARSE_ERROR",
+            "CHECKPOINT_FAILED",
+            "ESCALATION_TIMEOUT",
+            "ABORTED_BY_OPERATOR",
+            "INTERNAL_ERROR"
+          ]
+        },
+        "atStep": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "expected": {
+          "type": "string"
+        },
+        "observed": {
+          "type": "string"
+        },
+        "retryable": {
+          "type": "boolean"
+        },
+        "evidence": {
+          "type": "object",
+          "properties": {
+            "screenshot": {
+              "type": "string"
+            },
+            "observation": {
+              "type": "string"
+            },
+            "log": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "log"
+          ]
+        },
+        "meta": {
+          "$ref": "#/$defs/__schema0"
+        }
+      },
+      "required": [
+        "status",
+        "code",
+        "atStep",
+        "expected",
+        "observed",
+        "retryable",
+        "evidence",
+        "meta"
+      ]
+    }
+  ],
+  "$defs": {
+    "__schema0": {
+      "type": "object",
+      "properties": {
+        "runId": {
+          "type": "string"
+        },
+        "capabilityId": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "effectiveHash": {
+          "type": "string",
+          "description": "Hash of the merged profile + capability + overlay that ran"
+        },
+        "tenantId": {
+          "type": "string"
+        },
+        "appVersion": {
+          "type": "string"
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+        },
+        "durationMs": {
+          "type": "number"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "recoveries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "conditionId": {
+                "type": "string"
+              },
+              "atStep": {
+                "type": "string"
+              },
+              "attempts": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "conditionId",
+              "atStep",
+              "attempts"
+            ]
+          }
+        },
+        "locatorDrift": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "stepId": {
+                "type": "string"
+              },
+              "usedLocator": {
+                "type": "number"
+              },
+              "kind": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "stepId",
+              "usedLocator",
+              "kind"
+            ]
+          }
+        },
+        "humanInterventions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "interventionId": {
+                "type": "string"
+              },
+              "atStep": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "resolution": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "interventionId",
+              "atStep",
+              "resolution"
+            ]
+          }
+        }
+      },
+      "required": [
+        "runId",
+        "capabilityId",
+        "version",
+        "effectiveHash",
+        "tenantId",
+        "startedAt",
+        "durationMs",
+        "warnings",
+        "recoveries",
+        "locatorDrift",
+        "humanInterventions"
+      ]
+    }
+  }
+}

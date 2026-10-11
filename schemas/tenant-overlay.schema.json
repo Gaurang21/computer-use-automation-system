@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "const": "tenant_overlay"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "tenantId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "appId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "appVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "baseUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "textMap": {
+      "default": {},
+      "description": "Base label -> tenant label, applied to every locator and matcher string at load",
+      "$ref": "#/$defs/__schema0"
+    },
+    "patches": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "capabilityId": {
+            "type": "string"
+          },
+          "appVersions": {
+            "type": "string"
+          },
+          "ops": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/__schema1"
+            }
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "capabilityId",
+          "ops",
+          "reason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "disabledCapabilities": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "secrets": {
+      "default": {},
+      "description": "secrets.<name> -> environment variable. Credentials are per institution.",
+      "$ref": "#/$defs/__schema2"
+    }
+  },
+  "required": [
+    "kind",
+    "schemaVersion",
+    "tenantId",
+    "appId",
+    "appVersion",
+    "baseUrl"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "__schema0": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "__schema1": {
+      "type": "object",
+      "properties": {
+        "op": {
+          "type": "string",
+          "enum": [
+            "add",
+            "remove",
+            "replace"
+          ]
+        },
+        "path": {
+          "type": "string",
+          "format": "starts_with",
+          "pattern": "^\\/.*"
+        },
+        "value": {}
+      },
+      "required": [
+        "op",
+        "path"
+      ],
+      "additionalProperties": false
+    },
+    "__schema2": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "env": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "env"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}

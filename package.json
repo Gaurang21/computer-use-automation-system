@@ -14,7 +14,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "check": "npm run typecheck && npm run lint && npm test",
-    "app": "tsx target-app/main.ts"
+    "app": "tsx target-app/main.ts",
+    "schemas": "tsx src/schema/export.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

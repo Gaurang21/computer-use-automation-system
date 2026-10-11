@@ -1,0 +1,560 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "const": "app_profile"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "appId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "surface": {
+      "type": "string",
+      "enum": [
+        "web",
+        "desktop"
+      ]
+    },
+    "identity": {
+      "type": "object",
+      "properties": {
+        "fingerprint": {
+          "$ref": "#/$defs/__schema0"
+        },
+        "versionPattern": {
+          "type": "string",
+          "description": "Regex with one group capturing major.minor from screen text"
+        },
+        "testedVersions": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/__schema27"
+          }
+        }
+      },
+      "required": [
+        "fingerprint",
+        "versionPattern",
+        "testedVersions"
+      ],
+      "additionalProperties": false
+    },
+    "conditions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/__schema28"
+          },
+          "class": {
+            "$ref": "#/$defs/__schema29"
+          },
+          "code": {
+            "$ref": "#/$defs/__schema30"
+          },
+          "message": {
+            "$ref": "#/$defs/__schema31"
+          },
+          "detect": {
+            "$ref": "#/$defs/__schema0"
+          },
+          "recover": {
+            "$ref": "#/$defs/__schema32"
+          },
+          "maxAttempts": {
+            "$ref": "#/$defs/__schema33"
+          }
+        },
+        "required": [
+          "id",
+          "class",
+          "detect"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "kind",
+    "schemaVersion",
+    "appId",
+    "surface",
+    "identity",
+    "conditions"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "__schema0": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "all": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/__schema0"
+              }
+            }
+          },
+          "required": [
+            "all"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "any": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/__schema0"
+              }
+            }
+          },
+          "required": [
+            "any"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "not": {
+              "$ref": "#/$defs/__schema0"
+            }
+          },
+          "required": [
+            "not"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "visible": {
+              "$ref": "#/$defs/__schema1"
+            }
+          },
+          "required": [
+            "visible"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "textPresent": {
+              "type": "string",
+              "minLength": 1
+            },
+            "inFrame": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "textPresent"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "locationMatches": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Regex tested against every frame URL"
+            }
+          },
+          "required": [
+            "locationMatches"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "__schema1": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "$ref": "#/$defs/__schema2"
+            },
+            "table": {
+              "$ref": "#/$defs/__schema3"
+            },
+            "rowWhere": {
+              "$ref": "#/$defs/__schema25"
+            },
+            "column": {
+              "$ref": "#/$defs/__schema26"
+            }
+          },
+          "required": [
+            "kind",
+            "table",
+            "rowWhere",
+            "column"
+          ],
+          "description": "A cell in a data table, found by a row predicate and a column header."
+        },
+        {
+          "$ref": "#/$defs/__schema3"
+        }
+      ]
+    },
+    "__schema2": {
+      "type": "string",
+      "const": "table_cell"
+    },
+    "__schema3": {
+      "type": "object",
+      "properties": {
+        "locators": {
+          "$ref": "#/$defs/__schema4"
+        }
+      },
+      "required": [
+        "locators"
+      ],
+      "description": "Ordered locators. The first one matching exactly one element wins."
+    },
+    "__schema4": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/__schema5"
+      }
+    },
+    "__schema5": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "$ref": "#/$defs/__schema6"
+            },
+            "role": {
+              "$ref": "#/$defs/__schema7"
+            },
+            "name": {
+              "$ref": "#/$defs/__schema8"
+            },
+            "framePath": {
+              "$ref": "#/$defs/__schema9"
+            }
+          },
+          "required": [
+            "kind",
+            "role",
+            "name"
+          ],
+          "description": "Role plus exact accessible name. Strongest when the app labels its controls."
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "$ref": "#/$defs/__schema12"
+            },
+            "role": {
+              "$ref": "#/$defs/__schema7"
+            },
+            "label": {
+              "$ref": "#/$defs/__schema13"
+            },
+            "relation": {
+              "$ref": "#/$defs/__schema14"
+            },
+            "framePath": {
+              "$ref": "#/$defs/__schema15"
+            }
+          },
+          "required": [
+            "kind",
+            "role",
+            "label",
+            "relation"
+          ],
+          "description": "Role plus the visible label text next to the control. Targets unlabeled legacy inputs."
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "$ref": "#/$defs/__schema16"
+            },
+            "role": {
+              "$ref": "#/$defs/__schema17"
+            },
+            "text": {
+              "$ref": "#/$defs/__schema18"
+            },
+            "framePath": {
+              "$ref": "#/$defs/__schema19"
+            }
+          },
+          "required": [
+            "kind",
+            "text"
+          ],
+          "description": "Visible text, for buttons, links and static text."
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "$ref": "#/$defs/__schema20"
+            },
+            "framePath": {
+              "$ref": "#/$defs/__schema10"
+            },
+            "role": {
+              "$ref": "#/$defs/__schema7"
+            },
+            "ordinal": {
+              "$ref": "#/$defs/__schema21"
+            }
+          },
+          "required": [
+            "kind",
+            "framePath",
+            "role",
+            "ordinal"
+          ],
+          "description": "The Nth element of a role inside a frame. Survives label renames, not reordering."
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "$ref": "#/$defs/__schema22"
+            },
+            "role": {
+              "$ref": "#/$defs/__schema23"
+            },
+            "bbox": {
+              "$ref": "#/$defs/__schema24"
+            }
+          },
+          "required": [
+            "kind",
+            "bbox"
+          ],
+          "description": "Last known bounding box. Kept for evidence and drift checks. Only used to act when policy allows visual fallback."
+        }
+      ]
+    },
+    "__schema6": {
+      "type": "string",
+      "const": "role_name"
+    },
+    "__schema7": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Normalized accessibility role, e.g. button, textbox, link"
+    },
+    "__schema8": {
+      "type": "string",
+      "minLength": 1
+    },
+    "__schema9": {
+      "$ref": "#/$defs/__schema10"
+    },
+    "__schema10": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/__schema11"
+      },
+      "description": "Frame names from the top window down to the frame holding the element"
+    },
+    "__schema11": {
+      "type": "string"
+    },
+    "__schema12": {
+      "type": "string",
+      "const": "label_anchor"
+    },
+    "__schema13": {
+      "type": "string",
+      "minLength": 1
+    },
+    "__schema14": {
+      "type": "string",
+      "enum": [
+        "left_of",
+        "above"
+      ]
+    },
+    "__schema15": {
+      "$ref": "#/$defs/__schema10"
+    },
+    "__schema16": {
+      "type": "string",
+      "const": "text"
+    },
+    "__schema17": {
+      "$ref": "#/$defs/__schema7"
+    },
+    "__schema18": {
+      "type": "string",
+      "minLength": 1
+    },
+    "__schema19": {
+      "$ref": "#/$defs/__schema10"
+    },
+    "__schema20": {
+      "type": "string",
+      "const": "structural"
+    },
+    "__schema21": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "__schema22": {
+      "type": "string",
+      "const": "visual"
+    },
+    "__schema23": {
+      "$ref": "#/$defs/__schema7"
+    },
+    "__schema24": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "w": {
+          "type": "number"
+        },
+        "h": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h"
+      ]
+    },
+    "__schema25": {
+      "type": "object",
+      "properties": {
+        "column": {
+          "type": "string",
+          "minLength": 1
+        },
+        "equals": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "column",
+        "equals"
+      ]
+    },
+    "__schema26": {
+      "type": "string",
+      "minLength": 1
+    },
+    "__schema27": {
+      "type": "string"
+    },
+    "__schema28": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "__schema29": {
+      "type": "string",
+      "enum": [
+        "recoverable",
+        "business_outcome",
+        "hard_failure"
+      ]
+    },
+    "__schema30": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_]*$"
+    },
+    "__schema31": {
+      "type": "string"
+    },
+    "__schema32": {
+      "type": "object",
+      "properties": {
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "click",
+                  "press",
+                  "wait"
+                ]
+              },
+              "target": {
+                "$ref": "#/$defs/__schema1"
+              },
+              "key": {
+                "type": "string"
+              },
+              "ms": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10000
+              }
+            },
+            "required": [
+              "action"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "runCapability": {
+          "type": "string"
+        },
+        "then": {
+          "type": "string",
+          "enum": [
+            "continue",
+            "retry_step",
+            "restart"
+          ],
+          "description": "continue: re-check the current step; retry_step: run it again; restart: run the flow from step one"
+        }
+      },
+      "required": [
+        "then"
+      ],
+      "additionalProperties": false
+    },
+    "__schema33": {
+      "default": 1,
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    }
+  }
+}
