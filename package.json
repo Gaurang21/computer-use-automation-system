@@ -18,7 +18,8 @@
     "schemas": "tsx src/schema/export.ts",
     "replay": "tsx src/cli.ts replay",
     "approve": "tsx src/cli.ts approve",
-    "discover": "tsx src/cli.ts discover"
+    "discover": "tsx src/cli.ts discover",
+    "evidence": "tsx src/evidence/generate.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
