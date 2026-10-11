@@ -75,12 +75,14 @@ export const SEED_MEMBERS: readonly Member[] = [
     accounts: [{ type: 'Savings', number: '7001000601', balanceCents: 9_900_000 }],
   },
   {
+    // Two savings accounts: "the savings balance" is ambiguous for this member.
     id: '10007',
     name: 'Taylor Brennan',
     ssnLast4: '7734',
     restricted: false,
     accounts: [
       { type: 'Savings', number: '7001000701', balanceCents: 640_000 },
+      { type: 'Savings', number: '7001000703', balanceCents: 18_000 },
       { type: 'Checking', number: '7001000702', balanceCents: 15_250 },
     ],
   },
