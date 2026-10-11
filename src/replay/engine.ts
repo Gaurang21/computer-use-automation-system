@@ -50,6 +50,11 @@ export interface StuckContext {
   obs: Observation;
   /** retry/continue are only offered when they are safe. */
   allowed: ('retry' | 'continue' | 'abort' | 'approve' | 'reject')[];
+  /** The live session, so a human can take it over. */
+  surface: GuardedSurface;
+  logger: RunLogger;
+  /** Masked screenshot saved in the run folder. */
+  screenshotPath?: string;
 }
 
 export type HumanResolution =
@@ -60,6 +65,8 @@ export type HumanResolution =
 /** How replay asks a person for help. Without one, a stuck run simply fails. */
 export interface Escalation {
   request(ctx: StuckContext): Promise<HumanResolution>;
+  /** After a handback: whether the automation's resume check passed. */
+  resumed?(interventionId: string, ok: boolean): void;
 }
 
 // --- Options ---------------------------------------------------------------
@@ -148,6 +155,9 @@ class ReplayRun {
   private outputs: Record<string, TypedValue> = {};
   private attempts = new Map<string, number>();
   private versionChecked = false;
+  /** Intervention whose handback has not been confirmed by a passing step yet. */
+  private pendingResume: string | undefined;
+  private resumeFailures = 0;
   private readonly meta: Omit<RunMeta, 'durationMs'>;
 
   constructor(private readonly opts: ReplayOptions) {
@@ -400,6 +410,7 @@ class ReplayRun {
       const step = cap.steps[i] as Step;
       const directive = await this.runStep(eff, step, executed, prefix);
       if (directive === 'next') {
+        this.confirmResume(true);
         executed.push(step);
         i++;
       } else if (directive === 'restart') {
@@ -550,7 +561,18 @@ class ReplayRun {
           obs,
           executed,
         );
-        if (r === 'continue') return 'next';
+        if (r === 'continue') {
+          // The human did this step by hand. Verify its expectation before moving on.
+          const now = await this.surface.observe();
+          if (!step.expect || matches(now, step.expect)) return 'next';
+          this.confirmResume(false);
+          this.fail(
+            'UNEXPECTED_STATE',
+            stepId,
+            describeMatcher(step.expect),
+            `after handback: ${summarizeObservation(now)}`,
+          );
+        }
         if (r === 'retry') {
           deadline = Date.now() + Math.min(step.timeoutMs, 10_000);
           continue;
@@ -599,25 +621,41 @@ class ReplayRun {
       }
       if (quick) return 'next';
       if (Date.now() > deadline) {
-        const r = await this.stuck(
+        const expected = describeMatcher(step.expect as StateMatcher);
+        let r = await this.stuck(
           'UNEXPECTED_STATE',
           step,
           prefix,
-          describeMatcher(step.expect as StateMatcher),
+          expected,
           summarizeObservation(obs),
           obs,
           executed,
         );
-        if (r === 'retry' || r === 'restart') return r;
-        // continue: the human says the expectation now holds. Verify, never assume.
-        const now = await this.surface.observe();
-        if (step.expect && matches(now, step.expect)) return 'next';
-        this.fail(
-          'UNEXPECTED_STATE',
-          stepId,
-          describeMatcher(step.expect as StateMatcher),
-          `after handback: ${summarizeObservation(now)}`,
-        );
+        // Resume is never blind. "continue" means the human says the expectation now holds: verify it.
+        // A failed check goes back to the human once, then the run fails.
+        for (;;) {
+          if (r === 'retry' || r === 'restart') return r;
+          const now = await this.surface.observe();
+          if (step.expect && matches(now, step.expect)) return 'next';
+          this.confirmResume(false);
+          if (++this.resumeFailures >= 2) {
+            this.fail(
+              'UNEXPECTED_STATE',
+              stepId,
+              expected,
+              `after handback: ${summarizeObservation(now)}`,
+            );
+          }
+          r = await this.stuck(
+            'UNEXPECTED_STATE',
+            step,
+            prefix,
+            expected,
+            `after handback the expectation still does not hold: ${summarizeObservation(now)}`,
+            now,
+            executed,
+          );
+        }
       }
       await sleep(this.poll);
     }
@@ -741,9 +779,12 @@ class ReplayRun {
     const stepId = prefix + step.id;
     if (!this.opts.escalation || !STUCK_ESCALATES.has(code))
       this.fail(code, stepId, expected, observed);
-    const canRetry = retryAllowed(executed.filter((s) => s !== step)).ok;
+    // Retry re-runs the current step, so every step executed so far (this one included, once acted) must be retry safe.
+    const canRetry = retryAllowed(executed).ok;
     const shot = await this.surface.observe({ screenshot: true });
-    if (shot.screenshot) this.logger.saveScreenshot(`escalation-${step.id}`, shot.screenshot, shot);
+    const screenshotPath = shot.screenshot
+      ? this.logger.saveScreenshot(`escalation-${step.id}`, shot.screenshot, shot)
+      : undefined;
     this.logger.event({
       actor: 'automation',
       type: 'escalate',
@@ -762,6 +803,9 @@ class ReplayRun {
       observed,
       obs: shot.screenshot ? shot : obs,
       allowed: canRetry ? ['retry', 'continue', 'abort'] : ['continue', 'abort'],
+      surface: this.surface,
+      logger: this.logger,
+      ...(screenshotPath ? { screenshotPath } : {}),
     });
     this.meta.humanInterventions.push({
       interventionId: resolution.interventionId,
@@ -783,8 +827,21 @@ class ReplayRun {
         expected,
         'note' in resolution && resolution.note ? resolution.note : 'operator aborted',
       );
+    this.pendingResume = resolution.interventionId;
     if (resolution.kind === 'retry') return 'retry';
     return 'continue';
+  }
+
+  /** Reports the resume check to the escalation channel. */
+  private confirmResume(ok: boolean): void {
+    if (!this.pendingResume) return;
+    this.opts.escalation?.resumed?.(this.pendingResume, ok);
+    this.logger.event({
+      actor: 'automation',
+      type: 'control',
+      detail: { resumeCheck: ok ? 'passed' : 'failed', interventionId: this.pendingResume },
+    });
+    this.pendingResume = undefined;
   }
 
   // --- Helpers ---------------------------------------------------------------
@@ -916,6 +973,7 @@ class ReplayRun {
       });
       return { ...stop, meta: this.finishMeta() };
     }
+    this.confirmResume(false);
     const evidence: { screenshot?: string; observation?: string; log: string } = {
       log: this.logger.logPath,
     };
