@@ -1,0 +1,175 @@
+{
+  "kind": "capability",
+  "schemaVersion": "1.0",
+  "id": "member.open_sub_account",
+  "version": "1.0.0",
+  "title": "Open a sub-account for a member",
+  "description": "Opens a new savings, money market or certificate sub-account for a member with an opening deposit, and returns the new account number. The final Submit cannot be undone.",
+  "app": { "appId": "memberdesk", "versions": ">=7.2 <8" },
+  "risk": "irreversible",
+  "status": "draft",
+  "inputs": {
+    "memberId": { "type": "string", "pattern": "^\\d{5}$", "sensitivity": "identifier" },
+    "accountType": {
+      "type": "enum",
+      "enum": ["Savings", "Money Market", "Certificate"],
+      "sensitivity": "none"
+    },
+    "nickname": { "type": "string", "sensitivity": "none", "pattern": "^.{1,24}$" },
+    "openingDeposit": { "type": "money", "sensitivity": "financial" }
+  },
+  "outputs": {
+    "newAccountNumber": { "type": "string", "sensitivity": "identifier" }
+  },
+  "preconditions": [{ "capability": "auth.login" }],
+  "steps": [
+    {
+      "id": "s1",
+      "intent": "Open member search",
+      "action": "click",
+      "risk": "read",
+      "retrySafe": true,
+      "target": { "locators": [{ "kind": "text", "role": "link", "text": "Member Search" }] },
+      "expect": { "textPresent": "Find a member" }
+    },
+    {
+      "id": "s2",
+      "intent": "Enter the member ID",
+      "action": "type",
+      "risk": "read",
+      "retrySafe": true,
+      "target": {
+        "locators": [
+          { "kind": "label_anchor", "role": "textbox", "label": "Member ID", "relation": "left_of" }
+        ]
+      },
+      "value": { "from": "inputs.memberId" }
+    },
+    {
+      "id": "s3",
+      "intent": "Run the search",
+      "action": "click",
+      "risk": "read",
+      "retrySafe": true,
+      "target": { "locators": [{ "kind": "text", "role": "button", "text": "Search" }] },
+      "expect": { "textPresent": "Member Detail" }
+    },
+    {
+      "id": "s4",
+      "intent": "Open the sub-account form",
+      "action": "click",
+      "risk": "read",
+      "retrySafe": true,
+      "target": { "locators": [{ "kind": "text", "role": "button", "text": "Open Sub-Account" }] },
+      "expect": { "textPresent": "Opening Deposit" }
+    },
+    {
+      "id": "s5",
+      "intent": "Choose the account type",
+      "action": "select",
+      "risk": "reversible_write",
+      "retrySafe": true,
+      "target": {
+        "locators": [
+          {
+            "kind": "label_anchor",
+            "role": "combobox",
+            "label": "Account Type",
+            "relation": "left_of"
+          }
+        ]
+      },
+      "value": { "from": "inputs.accountType" }
+    },
+    {
+      "id": "s6",
+      "intent": "Enter the nickname",
+      "action": "type",
+      "risk": "reversible_write",
+      "retrySafe": true,
+      "target": {
+        "locators": [
+          { "kind": "label_anchor", "role": "textbox", "label": "Nickname", "relation": "left_of" }
+        ]
+      },
+      "value": { "from": "inputs.nickname" }
+    },
+    {
+      "id": "s7",
+      "intent": "Enter the opening deposit",
+      "action": "type",
+      "risk": "reversible_write",
+      "retrySafe": true,
+      "target": {
+        "locators": [
+          {
+            "kind": "label_anchor",
+            "role": "textbox",
+            "label": "Opening Deposit",
+            "relation": "left_of"
+          }
+        ]
+      },
+      "value": { "from": "inputs.openingDeposit" }
+    },
+    {
+      "id": "s8",
+      "intent": "Review the new account",
+      "action": "click",
+      "risk": "read",
+      "retrySafe": true,
+      "target": { "locators": [{ "kind": "text", "role": "button", "text": "Review" }] },
+      "expect": { "textPresent": "Review New Account" }
+    },
+    {
+      "id": "s9",
+      "intent": "Submit to open the account",
+      "action": "click",
+      "risk": "irreversible",
+      "retrySafe": false,
+      "target": { "locators": [{ "kind": "text", "role": "button", "text": "Submit" }] },
+      "expect": { "textPresent": "Account Opened" }
+    },
+    {
+      "id": "s10",
+      "intent": "Read the new account number",
+      "action": "read",
+      "risk": "read",
+      "retrySafe": true,
+      "target": {
+        "locators": [
+          {
+            "kind": "label_anchor",
+            "role": "text",
+            "label": "New Account Number",
+            "relation": "left_of"
+          }
+        ]
+      },
+      "into": "outputs.newAccountNumber"
+    }
+  ],
+  "outcomes": [
+    {
+      "code": "MEMBER_NOT_FOUND",
+      "message": "No member exists with that ID.",
+      "afterSteps": ["s3"],
+      "detect": { "textPresent": "No member found" },
+      "source": "reviewer"
+    },
+    {
+      "code": "DEPOSIT_BELOW_MINIMUM",
+      "message": "The opening deposit is below the product minimum.",
+      "afterSteps": ["s8"],
+      "detect": { "textPresent": "Opening deposit must be at least" },
+      "source": "reviewer"
+    }
+  ],
+  "success": { "textPresent": "Account Opened" },
+  "approval": null,
+  "provenance": {
+    "source": "hand_written",
+    "probeRunIds": [],
+    "recordedAt": "2026-10-11T00:00:00.000Z"
+  }
+}

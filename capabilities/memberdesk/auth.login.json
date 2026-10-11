@@ -1,0 +1,90 @@
+{
+  "kind": "capability",
+  "schemaVersion": "1.0",
+  "id": "auth.login",
+  "version": "1.0.0",
+  "title": "Sign on to MemberDesk",
+  "description": "Signs the operator on with the tenant's credentials and lands on Teller Home. Used as a precondition and as the recovery for session expiry.",
+  "app": { "appId": "memberdesk", "versions": ">=7.2 <8" },
+  "risk": "read",
+  "status": "draft",
+  "inputs": {},
+  "outputs": {},
+  "preconditions": [],
+  "entry": {
+    "path": "/",
+    "ready": {
+      "visible": {
+        "locators": [
+          {
+            "kind": "label_anchor",
+            "role": "textbox",
+            "label": "Operator ID",
+            "relation": "left_of"
+          }
+        ]
+      }
+    }
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "intent": "Enter the operator ID",
+      "action": "type",
+      "risk": "read",
+      "retrySafe": true,
+      "target": {
+        "locators": [
+          {
+            "kind": "label_anchor",
+            "role": "textbox",
+            "label": "Operator ID",
+            "relation": "left_of"
+          },
+          { "kind": "structural", "framePath": ["main"], "role": "textbox", "ordinal": 0 }
+        ]
+      },
+      "value": { "from": "secrets.operatorId" }
+    },
+    {
+      "id": "s2",
+      "intent": "Enter the password",
+      "action": "type",
+      "risk": "read",
+      "retrySafe": true,
+      "target": {
+        "locators": [
+          { "kind": "label_anchor", "role": "textbox", "label": "Password", "relation": "left_of" },
+          { "kind": "structural", "framePath": ["main"], "role": "textbox", "ordinal": 1 }
+        ]
+      },
+      "value": { "from": "secrets.operatorPassword" }
+    },
+    {
+      "id": "s3",
+      "intent": "Sign on",
+      "action": "click",
+      "risk": "read",
+      "retrySafe": true,
+      "target": { "locators": [{ "kind": "text", "role": "button", "text": "Sign On" }] },
+      "expect": { "textPresent": "Welcome" },
+      "timeoutMs": 8000
+    }
+  ],
+  "outcomes": [
+    {
+      "code": "INVALID_CREDENTIALS",
+      "message": "The tenant's operator credentials were rejected.",
+      "afterSteps": ["s3"],
+      "detect": { "textPresent": "Invalid operator ID or password." },
+      "source": "reviewer"
+    }
+  ],
+  "success": { "textPresent": "Welcome" },
+  "approval": null,
+  "provenance": {
+    "source": "hand_written",
+    "probeRunIds": [],
+    "recordedAt": "2026-10-11T00:00:00.000Z"
+  }
+}

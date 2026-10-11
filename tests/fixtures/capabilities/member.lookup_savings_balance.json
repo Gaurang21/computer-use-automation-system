@@ -1,0 +1,130 @@
+{
+  "kind": "capability",
+  "schemaVersion": "1.0",
+  "id": "member.lookup_savings_balance",
+  "version": "1.0.0",
+  "title": "Look up a member's savings balance",
+  "description": "Searches MemberDesk by member ID and returns the member name and current savings balance. Read-only.",
+  "app": { "appId": "memberdesk", "versions": ">=7.2 <8" },
+  "risk": "read",
+  "status": "draft",
+  "inputs": {
+    "memberId": {
+      "type": "string",
+      "pattern": "^\\d{5}$",
+      "sensitivity": "identifier",
+      "description": "Five digit member ID"
+    }
+  },
+  "outputs": {
+    "memberName": { "type": "string", "sensitivity": "pii", "description": "Member's full name" },
+    "savingsBalance": {
+      "type": "money",
+      "sensitivity": "financial",
+      "description": "Current savings balance"
+    }
+  },
+  "preconditions": [{ "capability": "auth.login" }],
+  "steps": [
+    {
+      "id": "s1",
+      "intent": "Open member search",
+      "action": "click",
+      "risk": "read",
+      "retrySafe": true,
+      "target": {
+        "locators": [
+          { "kind": "role_name", "role": "link", "name": "Member Search", "framePath": ["nav"] },
+          { "kind": "text", "role": "link", "text": "Member Search" }
+        ]
+      },
+      "expect": { "textPresent": "Find a member" },
+      "timeoutMs": 8000
+    },
+    {
+      "id": "s2",
+      "intent": "Enter the member ID",
+      "action": "type",
+      "risk": "read",
+      "retrySafe": true,
+      "target": {
+        "locators": [
+          {
+            "kind": "label_anchor",
+            "role": "textbox",
+            "label": "Member ID",
+            "relation": "left_of"
+          },
+          { "kind": "structural", "framePath": ["main"], "role": "textbox", "ordinal": 0 }
+        ]
+      },
+      "value": { "from": "inputs.memberId" }
+    },
+    {
+      "id": "s3",
+      "intent": "Run the search",
+      "action": "click",
+      "risk": "read",
+      "retrySafe": true,
+      "target": { "locators": [{ "kind": "text", "role": "button", "text": "Search" }] },
+      "expect": { "textPresent": "Member Detail" },
+      "timeoutMs": 8000
+    },
+    {
+      "id": "s4",
+      "intent": "Read the member name",
+      "action": "read",
+      "risk": "read",
+      "retrySafe": true,
+      "target": {
+        "locators": [
+          { "kind": "label_anchor", "role": "text", "label": "Name", "relation": "left_of" }
+        ]
+      },
+      "into": "outputs.memberName"
+    },
+    {
+      "id": "s5",
+      "intent": "Read the savings balance",
+      "action": "read",
+      "risk": "read",
+      "retrySafe": true,
+      "target": {
+        "kind": "table_cell",
+        "table": {
+          "locators": [
+            { "kind": "label_anchor", "role": "table", "label": "Accounts", "relation": "above" }
+          ]
+        },
+        "rowWhere": { "column": "Type", "equals": "Savings" },
+        "column": "Balance"
+      },
+      "into": "outputs.savingsBalance"
+    }
+  ],
+  "outcomes": [
+    {
+      "code": "MEMBER_NOT_FOUND",
+      "message": "No member exists with that ID.",
+      "afterSteps": ["s3"],
+      "detect": { "textPresent": "No member found" },
+      "source": "reviewer"
+    },
+    {
+      "code": "NO_SAVINGS_ACCOUNT",
+      "message": "The member has no savings account.",
+      "afterSteps": ["s5"],
+      "detect": {
+        "all": [{ "textPresent": "Member Detail" }, { "not": { "textPresent": "Savings" } }]
+      },
+      "source": "reviewer"
+    }
+  ],
+  "success": { "textPresent": "Member Detail" },
+  "approval": null,
+  "provenance": {
+    "source": "hand_written",
+    "probeRunIds": [],
+    "recordedAt": "2026-10-11T00:00:00.000Z"
+  }
+}

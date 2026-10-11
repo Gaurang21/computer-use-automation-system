@@ -1,0 +1,55 @@
+{
+  "kind": "app_profile",
+  "schemaVersion": "1.0",
+  "appId": "memberdesk",
+  "surface": "web",
+  "identity": {
+    "fingerprint": { "textPresent": "MemberDesk" },
+    "versionPattern": "MemberDesk v(\\d+\\.\\d+)",
+    "testedVersions": ["7.2", "7.4"]
+  },
+  "conditions": [
+    {
+      "id": "session_expired",
+      "class": "recoverable",
+      "detect": { "textPresent": "Your session has expired" },
+      "recover": { "runCapability": "auth.login", "then": "restart" },
+      "maxAttempts": 1
+    },
+    {
+      "id": "signed_out",
+      "class": "recoverable",
+      "detect": { "textPresent": "Please sign on to continue." },
+      "recover": { "runCapability": "auth.login", "then": "restart" },
+      "maxAttempts": 1
+    },
+    {
+      "id": "maintenance_notice",
+      "class": "recoverable",
+      "detect": { "textPresent": "System notice" },
+      "recover": {
+        "steps": [
+          {
+            "action": "click",
+            "target": { "locators": [{ "kind": "text", "role": "button", "text": "Continue" }] }
+          }
+        ],
+        "then": "continue"
+      },
+      "maxAttempts": 2
+    },
+    {
+      "id": "permission_denied",
+      "class": "business_outcome",
+      "code": "PERMISSION_DENIED",
+      "message": "The operator is not authorized to view this member.",
+      "detect": { "textPresent": "You are not authorized" }
+    },
+    {
+      "id": "app_error",
+      "class": "hard_failure",
+      "code": "APP_ERROR",
+      "detect": { "textPresent": "Application Error" }
+    }
+  ]
+}
