@@ -1,6 +1,10 @@
 # Handoff status
 
-**Current milestone:** 7 (real evidence runs, needs `ANTHROPIC_API_KEY`)
+> **First open item: milestone 7.** `ANTHROPIC_API_KEY` was added to the environment after this session started, so no real model call has been made yet. In a new session: check the key, run `npm run evidence`, review `evidence/`, and commit it. Until then `evidence/` does not exist and nothing in the repo claims a real discovery run.
+>
+> **`REPORT.md` is a draft** (about 1,860 words, over the 1,500 target). Rewrite it in your own words before submitting.
+
+**Current milestone:** 7 (real evidence runs). Milestone 8 is done apart from the evidence it links to.
 **Model spend so far:** $0.00
 
 ## Milestones
@@ -15,7 +19,7 @@
 | 5   | Discovery and compiler             | done                                   |
 | 6   | Escalation                         | done                                   |
 | 7   | Real evidence runs                 | not started, needs `ANTHROPIC_API_KEY` |
-| 8   | Docs                               | not started                            |
+| 8   | Docs                               | done                                   |
 
 ## What works
 
@@ -42,7 +46,19 @@ Nothing yet.
 
 ## Skipped and why
 
-Nothing yet.
+- Milestone 7 has not run yet (no API key in this session). `npm run evidence -- --llm fake` dry-runs the full set into `runs/evidence-fake/` and passes.
+- Stretch goals (milestone 9): not started, by request, until the core including real evidence is done.
+
+## Verified on a fresh clone
+
+`npm ci`, `npm run app`, then every command in the README demo path:
+
+- discover with `--llm fake`
+- replay with success, `MEMBER_NOT_FOUND` and `INVALID_INPUT`
+- tenant B
+- the unknown-dialog escalation, handled through the console API (take control, click Acknowledge, hand back with retry), finishing with `success`
+- open sub-account discovery with approval at Submit
+- `POLICY_BLOCKED` without approval or without confirmation, then success after `approve` plus `--confirm-irreversible`
 
 ## Open questions
 
