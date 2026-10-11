@@ -1,0 +1,9 @@
+node_modules/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+# per-run scratch output; curated runs are copied into /evidence
+runs/
