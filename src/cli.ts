@@ -11,6 +11,10 @@ import { FakeBrain } from './discovery/fake-brain.js';
 import { loadGoal } from './discovery/goal.js';
 import { SpendTracker, capFromEnv } from './discovery/spend.js';
 import { loadPolicy } from './policy/gate.js';
+import { OperatorDiscoveryEscalation, OperatorReplayEscalation } from './operator/escalation.js';
+import { OperatorHub } from './operator/hub.js';
+import { startOperatorServer } from './operator/server.js';
+import { ConsoleNotifier } from './operator/types.js';
 import { approveCapabilityFile } from './replay/approval.js';
 import { replay } from './replay/engine.js';
 import { isApproved } from './replay/hash.js';
@@ -20,6 +24,23 @@ import { exitCodeFor } from './schema/result.js';
 if (existsSync('.env')) process.loadEnvFile('.env');
 
 const collect = (value: string, previous: string[] = []) => [...previous, value];
+
+/** Starts the operator console in this process, which owns the live session. */
+async function withOperator<T>(
+  enabled: boolean,
+  port: number,
+  run: (hub?: OperatorHub) => Promise<T>,
+): Promise<T> {
+  if (!enabled) return run();
+  const hub = new OperatorHub([new ConsoleNotifier()]);
+  const server = await startOperatorServer(hub, port);
+  process.stderr.write(`operator console: ${server.url}\n`);
+  try {
+    return await run(hub);
+  } finally {
+    await server.close();
+  }
+}
 
 export function parseInputs(pairs: string[]): Record<string, string> {
   const out: Record<string, string> = {};
@@ -53,18 +74,23 @@ program
   .option('--allow-draft', 'allow running a capability that is not approved', false)
   .option('--confirm-irreversible', 'caller confirms irreversible steps may run', false)
   .option('--headed', 'show the browser', false)
+  .option('--no-operator', 'fail instead of escalating to a human')
+  .option('--operator-port <port>', 'operator console port', '4100')
   .action(async (o) => {
-    const result = await replay({
-      store: new CapabilityStore('capabilities', o.app, o.capabilitiesDir),
-      capabilityId: o.capability,
-      tenantId: o.tenant,
-      inputs: parseInputs(o.input),
-      policy: loadPolicy(o.policy),
-      evidenceDir: o.evidenceDir,
-      allowDraft: o.allowDraft,
-      confirmIrreversible: o.confirmIrreversible,
-      headless: !o.headed,
-    });
+    const result = await withOperator(o.operator, Number(o.operatorPort), (hub) =>
+      replay({
+        store: new CapabilityStore('capabilities', o.app, o.capabilitiesDir),
+        capabilityId: o.capability,
+        tenantId: o.tenant,
+        inputs: parseInputs(o.input),
+        policy: loadPolicy(o.policy),
+        evidenceDir: o.evidenceDir,
+        allowDraft: o.allowDraft,
+        confirmIrreversible: o.confirmIrreversible,
+        headless: !o.headed,
+        ...(hub ? { escalation: new OperatorReplayEscalation(hub) } : {}),
+      }),
+    );
     process.stdout.write(JSON.stringify(result, null, 2) + '\n');
     const where =
       result.status === 'failure'
@@ -88,6 +114,11 @@ program
   .option('--policy <file>', 'policy file', 'policy/default.policy.json')
   .option('--evidence-dir <dir>', 'where run folders are written', 'runs')
   .option('--headed', 'show the browser', false)
+  .option(
+    '--no-operator',
+    'stop instead of escalating to a human (irreversible steps are then rejected)',
+  )
+  .option('--operator-port <port>', 'operator console port', '4100')
   .action(async (o) => {
     const spec = loadGoal(o.spec);
     const spend = new SpendTracker(capFromEnv());
@@ -98,16 +129,21 @@ program
     } else {
       brain = new AnthropicBrain({ model: process.env.CUA_MODEL ?? 'claude-sonnet-5-5', spend });
     }
-    const result = await discover({
-      spec,
-      brain,
-      spend,
-      policy: loadPolicy(o.policy),
-      tenantId: o.tenant,
-      outDir: o.out ?? join('capabilities', spec.appId),
-      evidenceDir: o.evidenceDir,
-      headless: !o.headed,
-    });
+    const result = await withOperator(o.operator, Number(o.operatorPort), (hub) =>
+      discover({
+        spec,
+        brain,
+        spend,
+        policy: loadPolicy(o.policy),
+        tenantId: o.tenant,
+        outDir: o.out ?? join('capabilities', spec.appId),
+        evidenceDir: o.evidenceDir,
+        headless: !o.headed,
+        ...(hub
+          ? { escalation: new OperatorDiscoveryEscalation(hub, spec.goal, spec.capabilityId) }
+          : {}),
+      }),
+    );
     const { trace: _trace, capability: _cap, ...summary } = result;
     process.stdout.write(
       JSON.stringify(
