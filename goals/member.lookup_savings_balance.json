@@ -1,0 +1,73 @@
+{
+  "capabilityId": "member.lookup_savings_balance",
+  "appId": "memberdesk",
+  "goal": "Find the member whose ID is in inputs.memberId and read the member's full name into memberName and the balance of their savings account into savingsBalance.",
+  "preconditions": ["auth.login"],
+  "inputs": {
+    "memberId": {
+      "spec": {
+        "type": "string",
+        "pattern": "^\\d{5}$",
+        "sensitivity": "identifier",
+        "description": "Five digit member ID"
+      },
+      "value": "10001"
+    }
+  },
+  "outputs": {
+    "memberName": { "type": "string", "sensitivity": "pii", "description": "Member's full name" },
+    "savingsBalance": {
+      "type": "money",
+      "sensitivity": "financial",
+      "description": "Current savings balance"
+    }
+  },
+  "probes": [{ "memberId": "99999" }],
+  "maxSteps": 25,
+  "maxMinutes": 5,
+  "fake": {
+    "turns": [
+      {
+        "tool": "click",
+        "intent": "Open member search",
+        "target": { "role": "link", "name": "Member Search" }
+      },
+      {
+        "tool": "type",
+        "intent": "Enter the member ID",
+        "target": { "role": "textbox", "label": "Member ID" },
+        "value": "inputs.memberId"
+      },
+      {
+        "tool": "click",
+        "intent": "Run the search",
+        "target": { "role": "button", "name": "Search" }
+      },
+      {
+        "tool": "read",
+        "intent": "Read the member name",
+        "target": { "role": "text", "label": "Name" },
+        "output": "memberName"
+      },
+      {
+        "tool": "read",
+        "intent": "Read the savings balance",
+        "target": { "role": "cell", "name": "$12,540.32" },
+        "output": "savingsBalance"
+      },
+      { "tool": "done", "intent": "Finish", "summary": "Read the member name and savings balance" }
+    ],
+    "describe": {
+      "title": "Look up a member's savings balance",
+      "description": "Searches MemberDesk by member ID and returns the member's name and current savings balance. Read-only.",
+      "expects": { "s3": "Member Detail" }
+    },
+    "classify": [
+      {
+        "textPresent": "No member found",
+        "code": "MEMBER_NOT_FOUND",
+        "message": "No member exists with that ID."
+      }
+    ]
+  }
+}

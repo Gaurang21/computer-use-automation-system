@@ -17,7 +17,8 @@
     "app": "tsx target-app/main.ts",
     "schemas": "tsx src/schema/export.ts",
     "replay": "tsx src/cli.ts replay",
-    "approve": "tsx src/cli.ts approve"
+    "approve": "tsx src/cli.ts approve",
+    "discover": "tsx src/cli.ts discover"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

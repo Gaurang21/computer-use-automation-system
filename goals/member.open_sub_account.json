@@ -1,0 +1,122 @@
+{
+  "capabilityId": "member.open_sub_account",
+  "appId": "memberdesk",
+  "goal": "Open a new sub-account for the member whose ID is in inputs.memberId, using inputs.accountType, inputs.nickname and inputs.openingDeposit. Review it, submit it, and read the new account number into newAccountNumber.",
+  "preconditions": ["auth.login"],
+  "inputs": {
+    "memberId": {
+      "spec": { "type": "string", "pattern": "^\\d{5}$", "sensitivity": "identifier" },
+      "value": "10002"
+    },
+    "accountType": {
+      "spec": {
+        "type": "enum",
+        "enum": ["Savings", "Money Market", "Certificate"],
+        "sensitivity": "none"
+      },
+      "value": "Money Market"
+    },
+    "nickname": {
+      "spec": { "type": "string", "pattern": "^.{1,24}$", "sensitivity": "none" },
+      "value": "Rainy day fund"
+    },
+    "openingDeposit": { "spec": { "type": "money", "sensitivity": "financial" }, "value": "150.00" }
+  },
+  "outputs": {
+    "newAccountNumber": {
+      "type": "string",
+      "sensitivity": "identifier",
+      "description": "Number of the account just opened"
+    }
+  },
+  "probes": [{ "openingDeposit": "5.00" }],
+  "maxSteps": 25,
+  "maxMinutes": 5,
+  "fake": {
+    "turns": [
+      {
+        "tool": "click",
+        "intent": "Open member search",
+        "target": { "role": "link", "name": "Member Search" }
+      },
+      {
+        "tool": "type",
+        "intent": "Enter the member ID",
+        "target": { "role": "textbox", "label": "Member ID" },
+        "value": "inputs.memberId"
+      },
+      {
+        "tool": "click",
+        "intent": "Run the search",
+        "target": { "role": "button", "name": "Search" }
+      },
+      {
+        "tool": "click",
+        "intent": "Open the sub-account form",
+        "target": { "role": "button", "name": "Open Sub-Account" }
+      },
+      {
+        "tool": "select",
+        "intent": "Choose the account type",
+        "target": { "role": "combobox", "label": "Account Type" },
+        "value": "inputs.accountType"
+      },
+      {
+        "tool": "type",
+        "intent": "Enter the nickname",
+        "target": { "role": "textbox", "label": "Nickname" },
+        "value": "inputs.nickname"
+      },
+      {
+        "tool": "type",
+        "intent": "Enter the opening deposit",
+        "target": { "role": "textbox", "label": "Opening Deposit" },
+        "value": "inputs.openingDeposit"
+      },
+      {
+        "tool": "click",
+        "intent": "Review the new account",
+        "target": { "role": "button", "name": "Review" }
+      },
+      {
+        "tool": "click",
+        "intent": "Submit to open the account",
+        "target": { "role": "button", "name": "Submit" }
+      },
+      {
+        "tool": "read",
+        "intent": "Read the new account number",
+        "target": { "role": "text", "label": "New Account Number" },
+        "output": "newAccountNumber"
+      },
+      {
+        "tool": "done",
+        "intent": "Finish",
+        "summary": "Opened the sub-account and read its number"
+      }
+    ],
+    "describe": {
+      "title": "Open a sub-account for a member",
+      "description": "Opens a savings, money market or certificate sub-account with an opening deposit and returns the new account number. Submitting cannot be undone.",
+      "expects": {
+        "s3": "Member Detail",
+        "s4": "Opening Deposit",
+        "s8": "Review New Account",
+        "s9": "Account Opened"
+      },
+      "risks": {
+        "s5": "reversible_write",
+        "s6": "reversible_write",
+        "s7": "reversible_write",
+        "s9": "irreversible"
+      }
+    },
+    "classify": [
+      {
+        "textPresent": "Opening deposit must be at least",
+        "code": "DEPOSIT_BELOW_MINIMUM",
+        "message": "The opening deposit is below the product minimum."
+      }
+    ]
+  }
+}

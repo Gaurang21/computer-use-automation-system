@@ -3,6 +3,13 @@
 
 import { existsSync } from 'node:fs';
 import { Command } from 'commander';
+import { join } from 'node:path';
+import { AnthropicBrain } from './discovery/anthropic-brain.js';
+import type { Brain } from './discovery/brain.js';
+import { discover } from './discovery/discover.js';
+import { FakeBrain } from './discovery/fake-brain.js';
+import { loadGoal } from './discovery/goal.js';
+import { SpendTracker, capFromEnv } from './discovery/spend.js';
 import { loadPolicy } from './policy/gate.js';
 import { approveCapabilityFile } from './replay/approval.js';
 import { replay } from './replay/engine.js';
@@ -69,6 +76,50 @@ program
       `replay ${result.status}${where}; evidence in ${o.evidenceDir}/${result.meta.runId}\n`,
     );
     process.exitCode = exitCodeFor(result);
+  });
+
+program
+  .command('discover')
+  .description('Let a model accomplish a goal once, then compile the run into a capability')
+  .requiredOption('--spec <file>', 'goal spec, e.g. goals/member.lookup_savings_balance.json')
+  .option('--llm <kind>', 'anthropic (real model) or fake (scripted, no API key)', 'anthropic')
+  .option('--tenant <id>', 'tenant to discover against', 'tenant-a')
+  .option('--out <dir>', 'where to save the capability (default capabilities/<app>)')
+  .option('--policy <file>', 'policy file', 'policy/default.policy.json')
+  .option('--evidence-dir <dir>', 'where run folders are written', 'runs')
+  .option('--headed', 'show the browser', false)
+  .action(async (o) => {
+    const spec = loadGoal(o.spec);
+    const spend = new SpendTracker(capFromEnv());
+    let brain: Brain;
+    if (o.llm === 'fake') {
+      if (!spec.fake) throw new Error(`${o.spec} has no "fake" script; use --llm anthropic`);
+      brain = new FakeBrain(spec.fake);
+    } else {
+      brain = new AnthropicBrain({ model: process.env.CUA_MODEL ?? 'claude-sonnet-5-5', spend });
+    }
+    const result = await discover({
+      spec,
+      brain,
+      spend,
+      policy: loadPolicy(o.policy),
+      tenantId: o.tenant,
+      outDir: o.out ?? join('capabilities', spec.appId),
+      evidenceDir: o.evidenceDir,
+      headless: !o.headed,
+    });
+    const { trace: _trace, capability: _cap, ...summary } = result;
+    process.stdout.write(
+      JSON.stringify(
+        { ...summary, traceStatus: result.trace.status, steps: result.trace.steps.length },
+        null,
+        2,
+      ) + '\n',
+    );
+    process.stderr.write(
+      `discovery ${result.status}${result.reason ? ` (${result.reason})` : ''}; spend $${result.spendUsd.toFixed(4)}; evidence in ${result.dir}\n`,
+    );
+    process.exitCode = result.status === 'saved' ? 0 : 20;
   });
 
 program
