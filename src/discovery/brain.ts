@@ -68,4 +68,13 @@ export interface Brain {
     stepIntent: string,
     observation: Observation,
   ): Promise<OutcomeClassification>;
+  /** Where to send each exchange (text only) for the redacted transcript. */
+  setTranscript?(sink: (exchange: TranscriptEntry) => void): void;
+}
+
+export interface TranscriptEntry {
+  purpose: string;
+  model: string;
+  request: string;
+  response: unknown;
 }

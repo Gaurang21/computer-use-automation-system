@@ -77,6 +77,11 @@ export class RunLogger {
     return path;
   }
 
+  /** Appends one redacted JSON line to a file in the run folder. */
+  appendJsonl(name: string, data: unknown): void {
+    appendFileSync(join(this.dir, name), JSON.stringify(this.redactor.redactDeep(data)) + '\n');
+  }
+
   /** Writes text as is (caller is responsible for redaction). */
   writeText(name: string, text: string): string {
     const path = join(this.dir, name);

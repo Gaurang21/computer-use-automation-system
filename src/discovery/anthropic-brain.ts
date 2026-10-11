@@ -14,6 +14,7 @@ import type {
   Proposal,
   StepSummary,
   ToolCall,
+  TranscriptEntry,
 } from './brain.js';
 import { PRICING, type SpendTracker } from './spend.js';
 
@@ -117,6 +118,10 @@ export class AnthropicBrain implements Brain {
       baseURL: opts.baseURL ?? process.env.CUA_ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com',
       maxRetries: 2,
     });
+  }
+
+  setTranscript(sink: (e: TranscriptEntry) => void): void {
+    this.opts.onExchange = sink;
   }
 
   async decide(ctx: DecideContext): Promise<ToolCall> {

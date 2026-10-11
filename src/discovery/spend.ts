@@ -60,8 +60,13 @@ export class SpendTracker {
 
   constructor(
     readonly capUsd: number,
-    private readonly file?: string,
+    private file?: string,
   ) {}
+
+  setFile(file: string): void {
+    this.file = file;
+    this.flush();
+  }
 
   get totalUsd(): number {
     return this.calls.reduce((s, c) => s + c.costUsd, 0);
