@@ -1,6 +1,6 @@
 # Handoff status
 
-**Current milestone:** 2 (surface and resolver)
+**Current milestone:** 3 (schemas, policy, redaction, logger)
 **Model spend so far:** $0.00
 
 ## Milestones
@@ -9,7 +9,7 @@
 | --- | ---------------------------------- | -------------------------------------- |
 | 0   | Scaffold                           | done                                   |
 | 1   | Target app                         | done                                   |
-| 2   | Surface and resolver               | not started                            |
+| 2   | Surface and resolver               | done                                   |
 | 3   | Schemas, policy, redaction, logger | not started                            |
 | 4   | Replay engine                      | not started                            |
 | 5   | Discovery and compiler             | not started                            |
@@ -20,7 +20,9 @@
 ## What works
 
 - `npm run app` starts MemberDesk tenant A on :4000 and tenant B on :4001.
-- Smoke test walks both flows over HTTP on both tenants and triggers every failure switch (16 tests).
+- Smoke test walks both flows over HTTP on both tenants and triggers every failure switch.
+- `PlaywrightSurface` observes all four frames through the accessibility tree, resolves an unlabeled input in the main frame by its label anchor, reads table cells by row predicate and column, and returns every candidate for an ambiguous target.
+- `DesktopSurface` stub implements the interface and maps each method to Windows UI Automation.
 
 ## What fails
 
