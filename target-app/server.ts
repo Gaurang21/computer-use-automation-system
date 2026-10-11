@@ -3,6 +3,7 @@
 
 import express, { type Express, type Request, type Response, type NextFunction } from 'express';
 import { MemberStore, formatMoney, type Member } from './data.js';
+import { registerChaos } from './chaos.js';
 import { SessionStore } from './session.js';
 import { registerSubAccountRoutes } from './subaccount.js';
 import { accountTypeLabel, type NavItem, type TenantConfig } from './tenants.js';
@@ -76,6 +77,8 @@ export function createApp(tenant: TenantConfig): Express {
 
   // Everything below needs a signed-in operator.
   app.use('/app', requireSession(ctx));
+  // Failure switches fire only for signed-in pages, after the session check.
+  registerChaos(app, ctx);
 
   app.get('/app/home', (req, res) => {
     const op = ctx.sessions.get(req)?.operatorId ?? '';
