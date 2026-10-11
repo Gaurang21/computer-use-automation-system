@@ -85,6 +85,11 @@ export class GuardedSurface implements Surface {
     return checkAction(this.policy, this.buildRequest(action, actor, step));
   }
 
+  /** The most recent observation taken through this surface. */
+  lastObservation(): Observation | undefined {
+    return this.last;
+  }
+
   location(): Promise<string> {
     return this.inner.location();
   }
