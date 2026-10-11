@@ -4,6 +4,7 @@
 import express, { type Express, type Request, type Response, type NextFunction } from 'express';
 import { MemberStore, formatMoney, type Member } from './data.js';
 import { SessionStore } from './session.js';
+import { registerSubAccountRoutes } from './subaccount.js';
 import { accountTypeLabel, type NavItem, type TenantConfig } from './tenants.js';
 import {
   doc,
@@ -115,6 +116,8 @@ export function createApp(tenant: TenantConfig): Express {
     }
     res.type('html').send(memberDetailPage(tenant, member));
   });
+
+  registerSubAccountRoutes(app, ctx);
 
   app.get('/app/admin', (_req, res) => {
     res.type('html').send(
