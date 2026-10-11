@@ -23,3 +23,7 @@ One line per decision: the choice, what was rejected, and why.
 - **`tsx` runs TypeScript directly, no build step.** Rejected compiling to `dist/`. Nothing here ships as a package, so a build step adds a moving part with no payoff.
 - **Runtime dependencies are added in the milestone that first needs them.** Keeps each commit reviewable on its own.
 - **Commit straight to `main` in small commits.** No feature branches. Each commit is small enough that `git bisect` points at the cause when something breaks.
+- **Demo member IDs come from the seed (10001-10008).** The plan's examples used 10042, which is outside the seed range. 10001 is the happy path, 99999 is not found, 10004 has no savings, 10006 is restricted.
+- **Chaos fires only on signed-in `/app` pages, never on the banner, nav or sign-on.** Faults always land in the frame the automation is working in, which keeps the failure tests deterministic.
+- **Dismissing an interstitial replays the interrupted request** (same method, URL and form fields). That is how real maintenance notices behave, and it lets recovery mean "click Continue" with no extra state.
+- **One Express app per tenant, built from a config object.** Rejected two codebases. Tenant B differs only in labels, nav order, branding and version, which is exactly the "same vendor product" case the brief describes.

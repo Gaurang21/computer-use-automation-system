@@ -1,14 +1,14 @@
 # Handoff status
 
-**Current milestone:** 0 (scaffold)
+**Current milestone:** 2 (surface and resolver)
 **Model spend so far:** $0.00
 
 ## Milestones
 
 | #   | Milestone                          | Status                                 |
 | --- | ---------------------------------- | -------------------------------------- |
-| 0   | Scaffold                           | in progress                            |
-| 1   | Target app                         | not started                            |
+| 0   | Scaffold                           | done                                   |
+| 1   | Target app                         | done                                   |
 | 2   | Surface and resolver               | not started                            |
 | 3   | Schemas, policy, redaction, logger | not started                            |
 | 4   | Replay engine                      | not started                            |
@@ -19,7 +19,8 @@
 
 ## What works
 
-Nothing runnable yet.
+- `npm run app` starts MemberDesk tenant A on :4000 and tenant B on :4001.
+- Smoke test walks both flows over HTTP on both tenants and triggers every failure switch (16 tests).
 
 ## What fails
 
