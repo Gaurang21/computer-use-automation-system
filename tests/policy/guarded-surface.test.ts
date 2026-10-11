@@ -50,7 +50,9 @@ describe('GuardedSurface with network routing', () => {
     const obs = await surface.observe();
     const admin = obs.elements.find((e) => e.role === 'link' && e.name === 'Administration');
     expect(admin).toBeDefined();
+    surface.lease.transfer('human', 'test operator');
     await surface.act({ type: 'click', ref: admin?.ref ?? '' }, 'human');
+    surface.lease.transfer('automation', 'test handback');
     await expect.poll(() => blockedRequests).toContain('/app/admin');
     const after = await surface.observe();
     expect(after.elements.some((e) => e.name.includes('Reset All Operator Passwords'))).toBe(false);
