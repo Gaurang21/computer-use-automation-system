@@ -1,7 +1,7 @@
 # Project instructions
 
 Read docs/PLAN.md before doing anything. It is the build plan.
-docs/brief.pdf is the original assignment and wins any conflict.
+The original assignment brief is not in this repo. It wins any conflict.
 
 - Follow the milestone order in section 12 of the plan. Pass a milestone's checks before starting the next.
 - The decisions in section 2 are locked. For anything the plan leaves open, decide and add one line to DECISIONS.md.
