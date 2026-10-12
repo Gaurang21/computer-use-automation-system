@@ -159,5 +159,5 @@ goals/             discovery goal specs (typed inputs, outputs, probes, fake scr
 policy/            default.policy.json
 schemas/           exported JSON Schema for every artifact and the result contract
 tests/             unit and end-to-end tests, fixtures (hand-written capabilities)
-docs/              the brief and the build plan
+docs/              the build plan
 ```

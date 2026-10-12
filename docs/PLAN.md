@@ -1,6 +1,6 @@
 # Build plan: interface.ai Computer-Use Take-Home
 
-The original assignment is in [`docs/brief.pdf`](brief.pdf) and wins any conflict with this plan.
+The original assignment brief (interface.ai) is not included in this repository. It wins any conflict with this plan.
 
 ## 1. Mission and working rules
 
