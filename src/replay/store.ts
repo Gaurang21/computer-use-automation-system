@@ -32,14 +32,15 @@ export class CapabilityStore {
   /**
    * @param root directory holding one folder per app
    * @param appId the vendor product
-   * @param extraDirs more capability folders; earlier folders win on id clashes
+   * @param extraDirs more capability folders, searched before the app folder; earlier folders win on id clashes
    */
   constructor(
     readonly root = 'capabilities',
     readonly appId = 'memberdesk',
     extraDirs: string[] = [],
   ) {
-    for (const dir of [join(root, appId), ...extraDirs]) {
+    // Extra folders first: a draft being probed or self-checked must win over a saved capability with the same id.
+    for (const dir of [...extraDirs, join(root, appId)]) {
       if (!existsSync(dir)) continue;
       for (const f of readdirSync(dir)) {
         if (!f.endsWith('.json') || f === 'app-profile.json' || f.endsWith('.rejected.json'))
