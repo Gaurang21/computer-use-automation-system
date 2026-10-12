@@ -1,25 +1,30 @@
 # Handoff status
 
-> **First open item: milestone 7.** `ANTHROPIC_API_KEY` was added to the environment after this session started, so no real model call has been made yet. In a new session: check the key, run `npm run evidence`, review `evidence/`, and commit it. Until then `evidence/` does not exist and nothing in the repo claims a real discovery run.
+> **First open item: re-run `npm run evidence`.** The first real run (commit `bbf4e54`, $0.12 on `claude-sonnet-5-5`) exposed two bugs, now fixed:
+>
+> 1. Probes and the self-check replayed an older saved capability instead of the new draft. The store searched the app folder before the draft folder.
+> 2. The probe's leak check rejected "Opening deposit must be at least $25.00." because the probe input `5.00` appears inside `$25.00`.
+>
+> As a result, the committed capabilities have no business outcomes, and `evidence/replay-not-found` ends in `ABORTED_BY_OPERATOR` instead of `MEMBER_NOT_FOUND`. Pull, re-run `npm run evidence`, and commit the regenerated `evidence/` and `capabilities/memberdesk/*.json`.
 >
 > **`REPORT.md` is a draft** (about 1,860 words, over the 1,500 target). Rewrite it in your own words before submitting.
 
 **Current milestone:** 7 (real evidence runs). Milestone 8 is done apart from the evidence it links to.
-**Model spend so far:** $0.00
+**Model spend so far:** $0.12 (first real evidence run)
 
 ## Milestones
 
-| #   | Milestone                          | Status                                 |
-| --- | ---------------------------------- | -------------------------------------- |
-| 0   | Scaffold                           | done                                   |
-| 1   | Target app                         | done                                   |
-| 2   | Surface and resolver               | done                                   |
-| 3   | Schemas, policy, redaction, logger | done                                   |
-| 4   | Replay engine                      | done                                   |
-| 5   | Discovery and compiler             | done                                   |
-| 6   | Escalation                         | done                                   |
-| 7   | Real evidence runs                 | not started, needs `ANTHROPIC_API_KEY` |
-| 8   | Docs                               | done                                   |
+| #   | Milestone                          | Status                                  |
+| --- | ---------------------------------- | --------------------------------------- |
+| 0   | Scaffold                           | done                                    |
+| 1   | Target app                         | done                                    |
+| 2   | Surface and resolver               | done                                    |
+| 3   | Schemas, policy, redaction, logger | done                                    |
+| 4   | Replay engine                      | done                                    |
+| 5   | Discovery and compiler             | done                                    |
+| 6   | Escalation                         | done                                    |
+| 7   | Real evidence runs                 | ran once; re-run needed after two fixes |
+| 8   | Docs                               | done                                    |
 
 ## What works
 
@@ -42,7 +47,11 @@
 
 ## What fails
 
-Nothing yet.
+- The committed evidence is from the run before the two fixes above. `replay-not-found` and the missing outcomes in both capabilities will be correct after a re-run. Everything else in that run behaved as designed:
+  - real discovery of both flows, with approval at Submit
+  - success, session-expiry recovery, `APP_ERROR`, the human handoff and tenant B replays
+  - no secrets anywhere
+- One synthetic member name reached `transcript.redacted.jsonl`, because transcript lines were written before the name was read. Transcripts are now buffered and written once every value is known.
 
 ## Skipped and why
 

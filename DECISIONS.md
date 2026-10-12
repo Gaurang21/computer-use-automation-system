@@ -77,3 +77,6 @@ One line per decision: the choice, what was rejected, and why.
 - **The CLI blocks while a human has control.** A production caller would get an immediate `needs_human` handle and resume asynchronously. That is a transport choice, and the hub and state machine stay the same.
 - **No `npm run operator` standalone command.** The console only means something next to a live session, so it starts automatically with `replay` and `discover` (`--no-operator` turns it off).
 - **Enum input values are exempt from the leak check.** "Money Market" is one of the allowed options in the input contract, not leaked data.
+- **Extra capability folders are searched before the app folder.** The first real evidence run showed why. With the app folder first, an older saved capability shadowed the fresh draft, so probes and the self-check tested the wrong artifact. The CLI help already promised "searched first", and the code now matches it.
+- **The probe's leak check matches whole values, not substrings.** "5.00" inside "$25.00" is not a leak. The artifact-wide leak check stays substring-based, which is the conservative choice for a file that should never hold data.
+- **Discovery transcripts are buffered and written at the end of the run.** A value read late (the member's name) must also be scrubbed from earlier prompts that showed it on screen.
