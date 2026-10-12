@@ -2,12 +2,12 @@
   "status": "success",
   "outputs": {},
   "meta": {
-    "runId": "20261012T053552-replay-7f40bd",
+    "runId": "20261012T055539-replay-0d0c8e",
     "capabilityId": "auth.login",
     "version": "1.0.0",
-    "effectiveHash": "1cb440fb9123f844",
+    "effectiveHash": "5c517ca4127efbf9",
     "tenantId": "tenant-a",
-    "startedAt": "2026-10-12T05:35:52.639Z",
+    "startedAt": "2026-10-12T05:55:39.533Z",
     "warnings": [
       "ran a draft capability (--allow-draft)"
     ],
@@ -15,6 +15,6 @@
     "locatorDrift": [],
     "humanInterventions": [],
     "appVersion": "7.4",
-    "durationMs": 695
+    "durationMs": 697
   }
 }

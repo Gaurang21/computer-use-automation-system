@@ -1,12 +1,12 @@
-# frame banner: banner <http://127.0.0.1:52259/app/banner>
+# frame banner: banner <http://127.0.0.1:50168/app/banner>
 [e1] text "Cedar Valley Credit Union"
 [e2] text "MemberDesk Teller Workstation"
-# frame nav: nav <http://127.0.0.1:52259/app/nav>
+# frame nav: nav <http://127.0.0.1:50168/app/nav>
 [e3] link "Home"
 [e4] link "Member Search"
 [e5] link "Administration"
 [e6] link "Sign Out"
-# frame main: Open Sub-Account <http://127.0.0.1:52259/app/subaccount/review>
+# frame main: Open Sub-Account <http://127.0.0.1:50168/app/subaccount/review>
 [e7] text "MemberDesk v7.4 · Cedar Valley Credit Union" (label above: "Opening Deposit")
 [e8] text "Open Sub-Account"
 [e9] text "Member:" (label above: "Open Sub-Account")

@@ -4,7 +4,7 @@
   "id": "member.open_sub_account",
   "version": "1.0.0",
   "title": "Open a new sub-account for a member",
-  "description": "Finds a member by ID, opens a new sub-account with the given account type, nickname and opening deposit, reviews it, and submits it. Returns the new account number (newAccountNumber); this creates a real account and cannot be undone.",
+  "description": "Finds a member by ID, fills in the sub-account form with account type, nickname and opening deposit, reviews it, and submits it. Creates a real account that cannot be undone, and returns the new account number (newAccountNumber).",
   "app": {
     "appId": "memberdesk",
     "versions": ">=7.2 <8"
@@ -233,7 +233,7 @@
     },
     {
       "id": "s5",
-      "intent": "Select account type",
+      "intent": "Choose account type",
       "action": "select",
       "risk": "reversible_write",
       "retrySafe": true,
@@ -396,7 +396,7 @@
     },
     {
       "id": "s9",
-      "intent": "Submit new account",
+      "intent": "Submit the new account",
       "action": "click",
       "risk": "irreversible",
       "retrySafe": false,
@@ -478,19 +478,31 @@
       "timeoutMs": 8000
     }
   ],
-  "outcomes": [],
+  "outcomes": [
+    {
+      "code": "OPENING_DEPOSIT_BELOW_MINIMUM",
+      "message": "The review was rejected because the opening deposit is below the $25.00 minimum, so the sub-account was not opened.",
+      "afterSteps": [
+        "s8"
+      ],
+      "detect": {
+        "textPresent": "Opening deposit must be at least $25.00."
+      },
+      "source": "probe"
+    }
+  ],
   "success": {
     "textPresent": "Account Opened"
   },
   "approval": null,
   "provenance": {
     "source": "discovery",
-    "discoveryRunId": "20261012T053552-discovery-cf3824",
+    "discoveryRunId": "20261012T055611-discovery-43f4ff",
     "probeRunIds": [
-      "20261012T053624-replay-b75fac"
+      "20261012T055645-replay-b1de70"
     ],
     "model": "claude-sonnet-5-5",
-    "recordedAt": "2026-10-12T05:36:24.936Z",
+    "recordedAt": "2026-10-12T05:56:45.129Z",
     "compilerVersion": "0.1.0"
   }
 }

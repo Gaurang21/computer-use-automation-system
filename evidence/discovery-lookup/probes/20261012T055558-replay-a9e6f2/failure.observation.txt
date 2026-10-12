@@ -1,0 +1,17 @@
+# frame banner: banner <http://127.0.0.1:50168/app/banner>
+[e1] text "Cedar Valley Credit Union"
+[e2] text "MemberDesk Teller Workstation"
+# frame nav: nav <http://127.0.0.1:50168/app/nav>
+[e3] link "Home"
+[e4] link "Member Search"
+[e5] link "Administration"
+[e6] link "Sign Out"
+# frame main: Member Search <http://127.0.0.1:50168/app/search>
+[e7] text "MemberDesk v7.4 · Cedar Valley Credit Union" (label above: "Member ID")
+[e8] text "Member Search"
+[e9] text "Find a member" (label above: "Member Search")
+[e10] button "Search"
+[e11] text "No member found for Member ID ***99." (label above: "Find a member")
+[e12] text "Member ID" (label above: "No member found for Member ID ***99.")
+[e13] textbox "" (label left: "Member ID") value="***99"
+[e14] text "***99" (label left: "Member ID")

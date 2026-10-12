@@ -8,12 +8,12 @@
     }
   },
   "meta": {
-    "runId": "20261012T053701-replay-4de4d5",
+    "runId": "20261012T055714-replay-0919f0",
     "capabilityId": "member.lookup_savings_balance",
     "version": "1.0.0",
-    "effectiveHash": "0956b625eba197d1",
+    "effectiveHash": "4e42bd728c8c3602",
     "tenantId": "tenant-b",
-    "startedAt": "2026-10-12T05:37:01.845Z",
+    "startedAt": "2026-10-12T05:57:14.510Z",
     "warnings": [
       "ran a draft capability (--allow-draft)"
     ],
@@ -21,6 +21,6 @@
     "locatorDrift": [],
     "humanInterventions": [],
     "appVersion": "7.2",
-    "durationMs": 1171
+    "durationMs": 1238
   }
 }

@@ -7,11 +7,12 @@
       "inputs": {
         "memberId": "***99"
       },
-      "result": "business_outcome"
+      "result": "UNEXPECTED_STATE at s3",
+      "added": "MEMBER_NOT_FOUND"
     }
   ],
   "selfCheck": "success",
   "savedTo": "capabilities\\memberdesk\\member.lookup_savings_balance.json",
   "warnings": [],
-  "spendUsd": 0.0405694
+  "spendUsd": 0.049911500000000004
 }

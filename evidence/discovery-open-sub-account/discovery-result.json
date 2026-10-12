@@ -7,15 +7,15 @@
       "inputs": {
         "openingDeposit": "[REDACTED:financial]"
       },
-      "result": "UNEXPECTED_STATE at s8"
+      "result": "UNEXPECTED_STATE at s8",
+      "added": "OPENING_DEPOSIT_BELOW_MINIMUM"
     }
   ],
   "selfCheck": "failure",
   "savedTo": "capabilities\\memberdesk\\member.open_sub_account.json",
   "warnings": [
     "step s4: model proposed \"Open Sub-Account\", which did not verify; using a text diff",
-    "probe {\"openingDeposit\":\"[REDACTED:financial]\"}: proposed matcher for OPENING_DEPOSIT_BELOW_MINIMUM did not verify",
     "self-check stopped at the irreversible step (needs approval to replay past it)"
   ],
-  "spendUsd": 0.08131820000000002
+  "spendUsd": 0.08128820000000002
 }

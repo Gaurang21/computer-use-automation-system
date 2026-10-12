@@ -4,7 +4,7 @@
   "id": "member.lookup_savings_balance",
   "version": "1.0.0",
   "title": "Look up a member's name and savings balance",
-  "description": "Searches Member Search by member ID, then reads the member's full name (memberName) and the savings account balance (savingsBalance) from the Member Detail page. Read-only: nothing is changed, and the \"Open Sub-Account\" button is not used.",
+  "description": "Searches Member Search by the given member ID, then reads the member's full name (memberName) and savings account balance (savingsBalance) from the Member Detail page. Read-only: nothing is changed in the system.",
   "app": {
     "appId": "memberdesk",
     "versions": ">=7.2 <8"
@@ -127,7 +127,7 @@
     },
     {
       "id": "s3",
-      "intent": "Run the member search",
+      "intent": "Search for member",
       "action": "click",
       "risk": "read",
       "retrySafe": true,
@@ -254,19 +254,31 @@
       "timeoutMs": 8000
     }
   ],
-  "outcomes": [],
+  "outcomes": [
+    {
+      "code": "MEMBER_NOT_FOUND",
+      "message": "No member exists for the Member ID that was searched, so the member name and savings balance cannot be read.",
+      "afterSteps": [
+        "s3"
+      ],
+      "detect": {
+        "textPresent": "No member found for Member ID"
+      },
+      "source": "probe"
+    }
+  ],
   "success": {
     "textPresent": "Member Detail"
   },
   "approval": null,
   "provenance": {
     "source": "discovery",
-    "discoveryRunId": "20261012T053529-discovery-4ecd08",
+    "discoveryRunId": "20261012T055539-discovery-f01725",
     "probeRunIds": [
-      "20261012T053549-replay-509b39"
+      "20261012T055558-replay-a9e6f2"
     ],
     "model": "claude-sonnet-5-5",
-    "recordedAt": "2026-10-12T05:35:49.992Z",
+    "recordedAt": "2026-10-12T05:55:58.256Z",
     "compilerVersion": "0.1.0"
   }
 }

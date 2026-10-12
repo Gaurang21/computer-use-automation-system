@@ -1,18 +1,18 @@
 {
   "capUsd": 1,
-  "totalUsd": 0.040569,
-  "calls": 7,
-  "inputTokens": 25899,
-  "outputTokens": 1042,
+  "totalUsd": 0.049912,
+  "calls": 8,
+  "inputTokens": 26984,
+  "outputTokens": 1153,
   "byCall": [
     {
       "purpose": "decide",
       "model": "claude-sonnet-5-5",
       "input_tokens": 1894,
       "output_tokens": 72,
-      "cache_read_input_tokens": 1903,
-      "cache_creation_input_tokens": 0,
-      "costUsd": 0.004888600000000001
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 1903,
+      "costUsd": 0.0092655
     },
     {
       "purpose": "decide",
@@ -27,46 +27,55 @@
       "purpose": "decide",
       "model": "claude-sonnet-5-5",
       "input_tokens": 1985,
-      "output_tokens": 73,
+      "output_tokens": 72,
       "cache_read_input_tokens": 1903,
       "cache_creation_input_tokens": 0,
-      "costUsd": 0.0050806
+      "costUsd": 0.005070600000000001
     },
     {
       "purpose": "decide",
       "model": "claude-sonnet-5-5",
-      "input_tokens": 2272,
+      "input_tokens": 2271,
       "output_tokens": 192,
       "cache_read_input_tokens": 1903,
       "cache_creation_input_tokens": 0,
-      "costUsd": 0.0068446
+      "costUsd": 0.006842600000000001
     },
     {
       "purpose": "decide",
       "model": "claude-sonnet-5-5",
-      "input_tokens": 2292,
+      "input_tokens": 2291,
       "output_tokens": 100,
       "cache_read_input_tokens": 1903,
       "cache_creation_input_tokens": 0,
-      "costUsd": 0.0059646000000000005
+      "costUsd": 0.0059626
     },
     {
       "purpose": "decide",
       "model": "claude-sonnet-5-5",
-      "input_tokens": 2318,
-      "output_tokens": 124,
+      "input_tokens": 2317,
+      "output_tokens": 81,
       "cache_read_input_tokens": 1903,
       "cache_creation_input_tokens": 0,
-      "costUsd": 0.0062566
+      "costUsd": 0.0058246
     },
     {
       "purpose": "propose",
       "model": "claude-sonnet-5-5",
-      "input_tokens": 1179,
-      "output_tokens": 313,
-      "cache_read_input_tokens": 609,
-      "cache_creation_input_tokens": 0,
-      "costUsd": 0.0056098
+      "input_tokens": 1178,
+      "output_tokens": 300,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 609,
+      "costUsd": 0.0068785
+    },
+    {
+      "purpose": "classify",
+      "model": "claude-sonnet-5-5",
+      "input_tokens": 520,
+      "output_tokens": 168,
+      "cache_read_input_tokens": 0,
+      "cache_creation_input_tokens": 569,
+      "costUsd": 0.0041425
     }
   ]
 }

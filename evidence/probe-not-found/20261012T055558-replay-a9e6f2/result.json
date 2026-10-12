@@ -1,0 +1,35 @@
+{
+  "status": "failure",
+  "code": "ABORTED_BY_OPERATOR",
+  "atStep": "s3",
+  "expected": "text \"Member Detail\"",
+  "observed": "probe run: captured for classification",
+  "retryable": false,
+  "evidence": {
+    "log": "runs\\evidence-work\\20261012T055539-discovery-f01725\\probes\\20261012T055558-replay-a9e6f2\\run.jsonl",
+    "screenshot": "runs\\evidence-work\\20261012T055539-discovery-f01725\\probes\\20261012T055558-replay-a9e6f2\\screenshots\\failure.png",
+    "observation": "runs\\evidence-work\\20261012T055539-discovery-f01725\\probes\\20261012T055558-replay-a9e6f2\\failure.observation.txt"
+  },
+  "meta": {
+    "runId": "20261012T055558-replay-a9e6f2",
+    "capabilityId": "member.lookup_savings_balance",
+    "version": "1.0.0",
+    "effectiveHash": "6007bf327a693ced",
+    "tenantId": "tenant-a",
+    "startedAt": "2026-10-12T05:55:58.263Z",
+    "warnings": [
+      "ran a draft capability (--allow-draft)"
+    ],
+    "recoveries": [],
+    "locatorDrift": [],
+    "humanInterventions": [
+      {
+        "interventionId": "probe",
+        "atStep": "s3",
+        "resolution": "abort"
+      }
+    ],
+    "appVersion": "7.4",
+    "durationMs": 9191
+  }
+}

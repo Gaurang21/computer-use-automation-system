@@ -1,0 +1,25 @@
+{
+  "runId": "20261012T055704-replay-0e50f5",
+  "mode": "replay",
+  "kind": "stuck",
+  "capabilityId": "member.lookup_savings_balance",
+  "stepId": "s1",
+  "stepIntent": "Open member search",
+  "reasonCode": "UNEXPECTED_STATE",
+  "reason": "The screen did not match the expected state or any known condition.",
+  "expected": "text \"Find a member\"",
+  "observed": "Compliance Attestation <http://127.0.0.1:50168/app/search>: MemberDesk v7.4 · Cedar Valley Credit Union | Compliance Attestation | Annual BSA/AML attestation is due. Confirm you have completed the required training. | [Acknowledge]",
+  "location": "http://127.0.0.1:50168/app/search",
+  "screenshot": "runs\\evidence-work\\20261012T055704-replay-0e50f5\\screenshots\\escalation-s1.png",
+  "allowed": [
+    "take_control",
+    "abort"
+  ],
+  "handBackChoices": [
+    "retry",
+    "continue",
+    "abort"
+  ],
+  "id": "int_4829cc63",
+  "createdAt": "2026-10-12T05:57:13.779Z"
+}
