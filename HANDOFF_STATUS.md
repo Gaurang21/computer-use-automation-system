@@ -1,8 +1,6 @@
 # Handoff status
 
 > **Milestone 7 is done.** `evidence/` comes from a real run on `claude-sonnet-5-5` (commit `b1ef053`, $0.13). An earlier run (`bbf4e54`, $0.12) exposed two bugs, fixed in `d692742` and `4c0e8d4`.
->
-> **`REPORT.md` is a draft** (about 1,860 words, over the 1,500 target). Rewrite it in your own words before submitting.
 
 **Current milestone:** core milestones 0-8 done. Stretch goals (9) not started.
 **Model spend so far:** $0.25 (two real evidence runs: $0.12 + $0.13)
