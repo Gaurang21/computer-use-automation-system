@@ -1,0 +1,28 @@
+{
+  "resolution": {
+    "kind": "abort",
+    "interventionId": "int_099c15ec",
+    "note": "scripted operator: nothing it knows how to fix"
+  },
+  "humanActions": [],
+  "transitions": [
+    {
+      "from": "RUNNING",
+      "event": "escalate",
+      "to": "PAUSED_AWAITING_HUMAN",
+      "at": "2026-10-12T05:36:49.184Z"
+    },
+    {
+      "from": "PAUSED_AWAITING_HUMAN",
+      "event": "take_control",
+      "to": "HUMAN_CONTROL",
+      "at": "2026-10-12T05:36:49.187Z"
+    },
+    {
+      "from": "HUMAN_CONTROL",
+      "event": "abort",
+      "to": "ABORTED",
+      "at": "2026-10-12T05:36:49.207Z"
+    }
+  ]
+}

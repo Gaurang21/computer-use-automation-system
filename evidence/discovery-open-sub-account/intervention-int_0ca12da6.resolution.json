@@ -1,0 +1,22 @@
+{
+  "resolution": {
+    "kind": "approve",
+    "interventionId": "int_0ca12da6",
+    "note": "scripted operator: synthetic member, approved for the evidence run"
+  },
+  "humanActions": [],
+  "transitions": [
+    {
+      "from": "RUNNING",
+      "event": "escalate",
+      "to": "PAUSED_AWAITING_HUMAN",
+      "at": "2026-10-12T05:36:16.562Z"
+    },
+    {
+      "from": "PAUSED_AWAITING_HUMAN",
+      "event": "approve",
+      "to": "RESUMING",
+      "at": "2026-10-12T05:36:16.659Z"
+    }
+  ]
+}

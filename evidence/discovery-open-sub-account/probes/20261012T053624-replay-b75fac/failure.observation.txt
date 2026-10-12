@@ -1,0 +1,23 @@
+# frame banner: banner <http://127.0.0.1:52259/app/banner>
+[e1] text "Cedar Valley Credit Union"
+[e2] text "MemberDesk Teller Workstation"
+# frame nav: nav <http://127.0.0.1:52259/app/nav>
+[e3] link "Home"
+[e4] link "Member Search"
+[e5] link "Administration"
+[e6] link "Sign Out"
+# frame main: Open Sub-Account <http://127.0.0.1:52259/app/subaccount/review>
+[e7] text "MemberDesk v7.4 · Cedar Valley Credit Union" (label above: "Opening Deposit")
+[e8] text "Open Sub-Account"
+[e9] text "Member:" (label above: "Open Sub-Account")
+[e10] text "Jordan Okafor" (label left: "Member:")
+[e11] button "Review"
+[e12] text "Opening deposit must be at least [REDACTED:money][REDACTED:financial]." (label above: "Member:")
+[e13] text "Account Type" (label above: "Opening deposit must be at least [REDACTED:money][REDACTED:financial].")
+[e14] combobox "" (label left: "Account Type") value="Money Market" options=["-- select --","Savings","Money Market","Certificate"]
+[e15] text "Nickname" (label above: "Account Type")
+[e16] textbox "" (label left: "Nickname") value="Rainy day fund"
+[e17] text "Opening Deposit" (label above: "Nickname")
+[e18] textbox "" (label left: "Opening Deposit") value="[REDACTED:financial]"
+[e19] text "Rainy day fund" (label left: "Nickname")
+[e20] text "[REDACTED:financial]" (label left: "Opening Deposit")

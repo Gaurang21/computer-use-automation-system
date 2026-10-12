@@ -1,0 +1,21 @@
+{
+  "runId": "20261012T053552-discovery-cf3824",
+  "mode": "discovery",
+  "goal": "Open a new sub-account for the member whose ID is in inputs.memberId, using inputs.accountType, inputs.nickname and inputs.openingDeposit. Review it, submit it, and read the new account number into newAccountNumber.",
+  "capabilityId": "member.open_sub_account",
+  "stepId": "step-9",
+  "observed": "Review New Account <http://127.0.0.1:52259/app/subaccount/review>: MemberDesk v7.4 · Cedar Valley Credit Union | Review New Account | Confirm the details below. Submitting opens the account and cannot be undone. | [Submit] | Member | Jordan Okafor | Account Type | Money Market | Nickname | Rainy day fund | Opening Deposit | $[REDACTED:financial]",
+  "location": "http://127.0.0.1:52259/app/subaccount/review",
+  "screenshot": "runs\\evidence-work\\20261012T053552-discovery-cf3824\\screenshots\\escalation-step-9.png",
+  "kind": "approval",
+  "reasonCode": "IRREVERSIBLE_STEP",
+  "reason": "irreversible action \"click button \"Submit\"\" needs a human decision",
+  "expected": "approval to click e10",
+  "allowed": [
+    "approve",
+    "reject"
+  ],
+  "handBackChoices": [],
+  "id": "int_0ca12da6",
+  "createdAt": "2026-10-12T05:36:16.563Z"
+}

@@ -1,0 +1,204 @@
+{
+  "model": "claude-sonnet-5-5",
+  "totalUsd": 0.121888,
+  "runs": [
+    {
+      "capUsd": 1,
+      "totalUsd": 0.040569,
+      "calls": 7,
+      "inputTokens": 25899,
+      "outputTokens": 1042,
+      "byCall": [
+        {
+          "purpose": "decide",
+          "model": "claude-sonnet-5-5",
+          "input_tokens": 1894,
+          "output_tokens": 72,
+          "cache_read_input_tokens": 1903,
+          "cache_creation_input_tokens": 0,
+          "costUsd": 0.004888600000000001
+        },
+        {
+          "purpose": "decide",
+          "model": "claude-sonnet-5-5",
+          "input_tokens": 1932,
+          "output_tokens": 168,
+          "cache_read_input_tokens": 1903,
+          "cache_creation_input_tokens": 0,
+          "costUsd": 0.0059246
+        },
+        {
+          "purpose": "decide",
+          "model": "claude-sonnet-5-5",
+          "input_tokens": 1985,
+          "output_tokens": 73,
+          "cache_read_input_tokens": 1903,
+          "cache_creation_input_tokens": 0,
+          "costUsd": 0.0050806
+        },
+        {
+          "purpose": "decide",
+          "model": "claude-sonnet-5-5",
+          "input_tokens": 2272,
+          "output_tokens": 192,
+          "cache_read_input_tokens": 1903,
+          "cache_creation_input_tokens": 0,
+          "costUsd": 0.0068446
+        },
+        {
+          "purpose": "decide",
+          "model": "claude-sonnet-5-5",
+          "input_tokens": 2292,
+          "output_tokens": 100,
+          "cache_read_input_tokens": 1903,
+          "cache_creation_input_tokens": 0,
+          "costUsd": 0.0059646000000000005
+        },
+        {
+          "purpose": "decide",
+          "model": "claude-sonnet-5-5",
+          "input_tokens": 2318,
+          "output_tokens": 124,
+          "cache_read_input_tokens": 1903,
+          "cache_creation_input_tokens": 0,
+          "costUsd": 0.0062566
+        },
+        {
+          "purpose": "propose",
+          "model": "claude-sonnet-5-5",
+          "input_tokens": 1179,
+          "output_tokens": 313,
+          "cache_read_input_tokens": 609,
+          "cache_creation_input_tokens": 0,
+          "costUsd": 0.0056098
+        }
+      ]
+    },
+    {
+      "capUsd": 1,
+      "totalUsd": 0.081318,
+      "calls": 13,
+      "inputTokens": 49839,
+      "outputTokens": 2144,
+      "byCall": [
+        {
+          "purpose": "decide",
+          "model": "claude-sonnet-5-5",
+          "input_tokens": 1958,
+          "output_tokens": 72,
+          "cache_read_input_tokens": 1903,
+          "cache_creation_input_tokens": 0,
+          "costUsd": 0.0050166
+        },
+        {
+          "purpose": "decide",
+          "model": "claude-sonnet-5-5",
+          "input_tokens": 1996,
+          "output_tokens": 168,
+          "cache_read_input_tokens": 1903,
+          "cache_creation_input_tokens": 0,
+          "costUsd": 0.0060526
+        },
+        {
+          "purpose": "decide",
+          "model": "claude-sonnet-5-5",
+          "input_tokens": 2049,
+          "output_tokens": 72,
+          "cache_read_input_tokens": 1903,
+          "cache_creation_input_tokens": 0,
+          "costUsd": 0.0051986
+        },
+        {
+          "purpose": "decide",
+          "model": "claude-sonnet-5-5",
+          "input_tokens": 2335,
+          "output_tokens": 75,
+          "cache_read_input_tokens": 1903,
+          "cache_creation_input_tokens": 0,
+          "costUsd": 0.0058006
+        },
+        {
+          "purpose": "decide",
+          "model": "claude-sonnet-5-5",
+          "input_tokens": 2223,
+          "output_tokens": 365,
+          "cache_read_input_tokens": 1903,
+          "cache_creation_input_tokens": 0,
+          "costUsd": 0.0084766
+        },
+        {
+          "purpose": "decide",
+          "model": "claude-sonnet-5-5",
+          "input_tokens": 2249,
+          "output_tokens": 269,
+          "cache_read_input_tokens": 1903,
+          "cache_creation_input_tokens": 0,
+          "costUsd": 0.0075686
+        },
+        {
+          "purpose": "decide",
+          "model": "claude-sonnet-5-5",
+          "input_tokens": 2316,
+          "output_tokens": 106,
+          "cache_read_input_tokens": 1903,
+          "cache_creation_input_tokens": 0,
+          "costUsd": 0.0060726
+        },
+        {
+          "purpose": "decide",
+          "model": "claude-sonnet-5-5",
+          "input_tokens": 2379,
+          "output_tokens": 75,
+          "cache_read_input_tokens": 1903,
+          "cache_creation_input_tokens": 0,
+          "costUsd": 0.005888600000000001
+        },
+        {
+          "purpose": "decide",
+          "model": "claude-sonnet-5-5",
+          "input_tokens": 2356,
+          "output_tokens": 90,
+          "cache_read_input_tokens": 1903,
+          "cache_creation_input_tokens": 0,
+          "costUsd": 0.005992600000000001
+        },
+        {
+          "purpose": "decide",
+          "model": "claude-sonnet-5-5",
+          "input_tokens": 2293,
+          "output_tokens": 100,
+          "cache_read_input_tokens": 1903,
+          "cache_creation_input_tokens": 0,
+          "costUsd": 0.005966600000000001
+        },
+        {
+          "purpose": "decide",
+          "model": "claude-sonnet-5-5",
+          "input_tokens": 2293,
+          "output_tokens": 96,
+          "cache_read_input_tokens": 1903,
+          "cache_creation_input_tokens": 0,
+          "costUsd": 0.005926600000000001
+        },
+        {
+          "purpose": "propose",
+          "model": "claude-sonnet-5-5",
+          "input_tokens": 2518,
+          "output_tokens": 465,
+          "cache_read_input_tokens": 609,
+          "cache_creation_input_tokens": 0,
+          "costUsd": 0.009807799999999998
+        },
+        {
+          "purpose": "classify",
+          "model": "claude-sonnet-5-5",
+          "input_tokens": 763,
+          "output_tokens": 191,
+          "cache_read_input_tokens": 569,
+          "cache_creation_input_tokens": 0,
+          "costUsd": 0.0035498
+        }
+      ]
+    }
+  ]
+}

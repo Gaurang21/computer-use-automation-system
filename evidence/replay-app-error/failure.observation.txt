@@ -1,0 +1,14 @@
+# frame banner: banner <http://127.0.0.1:52259/app/banner>
+[e1] text "Cedar Valley Credit Union"
+[e2] text "MemberDesk Teller Workstation"
+# frame nav: nav <http://127.0.0.1:52259/app/nav>
+[e3] link "Home"
+[e4] link "Member Search" {focused}
+[e5] link "Administration"
+[e6] link "Sign Out"
+# frame main: Application Error <http://127.0.0.1:52259/app/search>
+[e7] text "MemberDesk v7.4 · Cedar Valley Credit Union" (label above: "Contact the help desk if the problem persists.")
+[e8] text "Application Error"
+[e9] text "An unexpected error occurred while processing your request." (label above: "Application Error")
+[e10] text "Incident reference: 79S4OAM3" (label above: "An unexpected error occurred while processing your request.")
+[e11] text "Contact the help desk if the problem persists." (label above: "Incident reference: 79S4OAM3")

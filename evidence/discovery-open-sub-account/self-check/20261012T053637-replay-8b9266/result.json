@@ -1,0 +1,29 @@
+{
+  "status": "failure",
+  "code": "POLICY_BLOCKED",
+  "atStep": "s9",
+  "expected": "an action the policy allows",
+  "observed": "policy blocked (irreversible): irreversible step in an unapproved artifact",
+  "retryable": false,
+  "evidence": {
+    "log": "runs\\evidence-work\\20261012T053552-discovery-cf3824\\self-check\\20261012T053637-replay-8b9266\\run.jsonl",
+    "screenshot": "runs\\evidence-work\\20261012T053552-discovery-cf3824\\self-check\\20261012T053637-replay-8b9266\\screenshots\\failure.png",
+    "observation": "runs\\evidence-work\\20261012T053552-discovery-cf3824\\self-check\\20261012T053637-replay-8b9266\\failure.observation.txt"
+  },
+  "meta": {
+    "runId": "20261012T053637-replay-8b9266",
+    "capabilityId": "member.open_sub_account",
+    "version": "1.0.0",
+    "effectiveHash": "4adba58a7c7def90",
+    "tenantId": "tenant-a",
+    "startedAt": "2026-10-12T05:36:37.439Z",
+    "warnings": [
+      "ran a draft capability (--allow-draft)"
+    ],
+    "recoveries": [],
+    "locatorDrift": [],
+    "humanInterventions": [],
+    "appVersion": "7.4",
+    "durationMs": 1201
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "status": "success",
+  "outputs": {},
+  "meta": {
+    "runId": "20261012T053552-replay-7f40bd",
+    "capabilityId": "auth.login",
+    "version": "1.0.0",
+    "effectiveHash": "1cb440fb9123f844",
+    "tenantId": "tenant-a",
+    "startedAt": "2026-10-12T05:35:52.639Z",
+    "warnings": [
+      "ran a draft capability (--allow-draft)"
+    ],
+    "recoveries": [],
+    "locatorDrift": [],
+    "humanInterventions": [],
+    "appVersion": "7.4",
+    "durationMs": 695
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "status": "saved",
+  "traceStatus": "done",
+  "steps": 5,
+  "probes": [
+    {
+      "inputs": {
+        "memberId": "***99"
+      },
+      "result": "business_outcome"
+    }
+  ],
+  "selfCheck": "success",
+  "savedTo": "capabilities\\memberdesk\\member.lookup_savings_balance.json",
+  "warnings": [],
+  "spendUsd": 0.0405694
+}

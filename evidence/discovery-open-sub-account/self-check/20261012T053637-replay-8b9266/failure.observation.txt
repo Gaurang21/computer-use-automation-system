@@ -1,0 +1,21 @@
+# frame banner: banner <http://127.0.0.1:52259/app/banner>
+[e1] text "Cedar Valley Credit Union"
+[e2] text "MemberDesk Teller Workstation"
+# frame nav: nav <http://127.0.0.1:52259/app/nav>
+[e3] link "Home"
+[e4] link "Member Search"
+[e5] link "Administration"
+[e6] link "Sign Out"
+# frame main: Review New Account <http://127.0.0.1:52259/app/subaccount/review>
+[e7] text "MemberDesk v7.4 · Cedar Valley Credit Union" (label above: "Opening Deposit")
+[e8] text "Review New Account"
+[e9] text "Confirm the details below. Submitting opens the account and cannot be undone." (label above: "Review New Account")
+[e10] button "Submit"
+[e11] text "Member" (label above: "Confirm the details below. Submitting opens the account and cannot be undone.")
+[e12] text "Jordan Okafor" (label left: "Member")
+[e13] text "Account Type" (label above: "Member")
+[e14] text "Money Market" (label left: "Account Type")
+[e15] text "Nickname" (label above: "Account Type")
+[e16] text "Rainy day fund" (label left: "Nickname")
+[e17] text "Opening Deposit" (label above: "Nickname")
+[e18] text "$[REDACTED:financial]" (label left: "Opening Deposit")

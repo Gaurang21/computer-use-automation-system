@@ -1,0 +1,26 @@
+{
+  "status": "success",
+  "outputs": {
+    "memberName": "[REDACTED:pii]",
+    "savingsBalance": {
+      "amountMinor": 1254032,
+      "currency": "USD"
+    }
+  },
+  "meta": {
+    "runId": "20261012T053701-replay-4de4d5",
+    "capabilityId": "member.lookup_savings_balance",
+    "version": "1.0.0",
+    "effectiveHash": "0956b625eba197d1",
+    "tenantId": "tenant-b",
+    "startedAt": "2026-10-12T05:37:01.845Z",
+    "warnings": [
+      "ran a draft capability (--allow-draft)"
+    ],
+    "recoveries": [],
+    "locatorDrift": [],
+    "humanInterventions": [],
+    "appVersion": "7.2",
+    "durationMs": 1171
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "kind": "tenant_overlay",
+  "schemaVersion": "1.0",
+  "tenantId": "tenant-b",
+  "appId": "memberdesk",
+  "appVersion": "7.2",
+  "baseUrl": "http://localhost:4001",
+  "textMap": {
+    "Member ID": "Account Holder No.",
+    "Search": "Find",
+    "Savings": "Share Savings"
+  },
+  "patches": [],
+  "disabledCapabilities": [],
+  "secrets": {
+    "operatorId": { "env": "MEMBERDESK_OPERATOR_ID" },
+    "operatorPassword": { "env": "MEMBERDESK_OPERATOR_PASSWORD" }
+  }
+}

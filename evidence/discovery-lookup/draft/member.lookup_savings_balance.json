@@ -1,0 +1,272 @@
+{
+  "kind": "capability",
+  "schemaVersion": "1.0",
+  "id": "member.lookup_savings_balance",
+  "version": "1.0.0",
+  "title": "Look up a member's name and savings balance",
+  "description": "Searches Member Search by member ID, then reads the member's full name (memberName) and the savings account balance (savingsBalance) from the Member Detail page. Read-only: nothing is changed, and the \"Open Sub-Account\" button is not used.",
+  "app": {
+    "appId": "memberdesk",
+    "versions": ">=7.2 <8"
+  },
+  "risk": "read",
+  "status": "draft",
+  "inputs": {
+    "memberId": {
+      "type": "string",
+      "sensitivity": "identifier",
+      "description": "Five digit member ID",
+      "pattern": "^\\d{5}$",
+      "required": true
+    }
+  },
+  "outputs": {
+    "memberName": {
+      "type": "string",
+      "sensitivity": "pii",
+      "description": "Member's full name",
+      "required": true
+    },
+    "savingsBalance": {
+      "type": "money",
+      "sensitivity": "financial",
+      "description": "Current savings balance",
+      "required": true
+    }
+  },
+  "preconditions": [
+    {
+      "capability": "auth.login"
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1",
+      "intent": "Open member search",
+      "action": "click",
+      "risk": "read",
+      "retrySafe": true,
+      "target": {
+        "locators": [
+          {
+            "kind": "role_name",
+            "role": "link",
+            "name": "Member Search",
+            "framePath": [
+              "nav"
+            ]
+          },
+          {
+            "kind": "text",
+            "role": "link",
+            "text": "Member Search"
+          },
+          {
+            "kind": "structural",
+            "framePath": [
+              "nav"
+            ],
+            "role": "link",
+            "ordinal": 1
+          },
+          {
+            "kind": "visual",
+            "role": "link",
+            "bbox": {
+              "x": 10,
+              "y": 94,
+              "w": 92.5,
+              "h": 15
+            }
+          }
+        ]
+      },
+      "expect": {
+        "textPresent": "Find a member"
+      },
+      "timeoutMs": 8000
+    },
+    {
+      "id": "s2",
+      "intent": "Enter member ID",
+      "action": "type",
+      "risk": "read",
+      "retrySafe": true,
+      "target": {
+        "locators": [
+          {
+            "kind": "label_anchor",
+            "role": "textbox",
+            "label": "Member ID",
+            "relation": "left_of"
+          },
+          {
+            "kind": "structural",
+            "framePath": [
+              "main"
+            ],
+            "role": "textbox",
+            "ordinal": 0
+          },
+          {
+            "kind": "visual",
+            "role": "textbox",
+            "bbox": {
+              "x": 264.3,
+              "y": 146,
+              "w": 107,
+              "h": 21
+            }
+          }
+        ]
+      },
+      "value": {
+        "from": "inputs.memberId"
+      },
+      "timeoutMs": 8000
+    },
+    {
+      "id": "s3",
+      "intent": "Run the member search",
+      "action": "click",
+      "risk": "read",
+      "retrySafe": true,
+      "target": {
+        "locators": [
+          {
+            "kind": "role_name",
+            "role": "button",
+            "name": "Search",
+            "framePath": [
+              "main"
+            ]
+          },
+          {
+            "kind": "text",
+            "role": "button",
+            "text": "Search"
+          },
+          {
+            "kind": "structural",
+            "framePath": [
+              "main"
+            ],
+            "role": "button",
+            "ordinal": 0
+          },
+          {
+            "kind": "visual",
+            "role": "button",
+            "bbox": {
+              "x": 191,
+              "y": 188,
+              "w": 58.3,
+              "h": 21
+            }
+          }
+        ]
+      },
+      "expect": {
+        "textPresent": "Member Detail"
+      },
+      "timeoutMs": 8000
+    },
+    {
+      "id": "s4",
+      "intent": "Read member name",
+      "action": "read",
+      "risk": "read",
+      "retrySafe": true,
+      "target": {
+        "locators": [
+          {
+            "kind": "label_anchor",
+            "role": "text",
+            "label": "Name",
+            "relation": "left_of"
+          },
+          {
+            "kind": "structural",
+            "framePath": [
+              "main"
+            ],
+            "role": "text",
+            "ordinal": 4
+          },
+          {
+            "kind": "visual",
+            "role": "text",
+            "bbox": {
+              "x": 264.3,
+              "y": 113,
+              "w": 97,
+              "h": 15
+            }
+          }
+        ]
+      },
+      "into": "outputs.memberName",
+      "timeoutMs": 8000
+    },
+    {
+      "id": "s5",
+      "intent": "Read savings balance",
+      "action": "read",
+      "risk": "read",
+      "retrySafe": true,
+      "target": {
+        "kind": "table_cell",
+        "table": {
+          "locators": [
+            {
+              "kind": "label_anchor",
+              "role": "table",
+              "label": "Accounts",
+              "relation": "above"
+            },
+            {
+              "kind": "structural",
+              "framePath": [
+                "main"
+              ],
+              "role": "table",
+              "ordinal": 0
+            },
+            {
+              "kind": "visual",
+              "role": "table",
+              "bbox": {
+                "x": 191,
+                "y": 206,
+                "w": 828.4,
+                "h": 77
+              }
+            }
+          ]
+        },
+        "rowWhere": {
+          "column": "Type",
+          "equals": "Savings"
+        },
+        "column": "Balance"
+      },
+      "into": "outputs.savingsBalance",
+      "timeoutMs": 8000
+    }
+  ],
+  "outcomes": [],
+  "success": {
+    "textPresent": "Member Detail"
+  },
+  "approval": null,
+  "provenance": {
+    "source": "discovery",
+    "discoveryRunId": "20261012T053529-discovery-4ecd08",
+    "probeRunIds": [
+      "20261012T053549-replay-509b39"
+    ],
+    "model": "claude-sonnet-5-5",
+    "recordedAt": "2026-10-12T05:35:49.992Z",
+    "compilerVersion": "0.1.0"
+  }
+}

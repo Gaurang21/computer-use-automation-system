@@ -1,0 +1,72 @@
+{
+  "capUsd": 1,
+  "totalUsd": 0.040569,
+  "calls": 7,
+  "inputTokens": 25899,
+  "outputTokens": 1042,
+  "byCall": [
+    {
+      "purpose": "decide",
+      "model": "claude-sonnet-5-5",
+      "input_tokens": 1894,
+      "output_tokens": 72,
+      "cache_read_input_tokens": 1903,
+      "cache_creation_input_tokens": 0,
+      "costUsd": 0.004888600000000001
+    },
+    {
+      "purpose": "decide",
+      "model": "claude-sonnet-5-5",
+      "input_tokens": 1932,
+      "output_tokens": 168,
+      "cache_read_input_tokens": 1903,
+      "cache_creation_input_tokens": 0,
+      "costUsd": 0.0059246
+    },
+    {
+      "purpose": "decide",
+      "model": "claude-sonnet-5-5",
+      "input_tokens": 1985,
+      "output_tokens": 73,
+      "cache_read_input_tokens": 1903,
+      "cache_creation_input_tokens": 0,
+      "costUsd": 0.0050806
+    },
+    {
+      "purpose": "decide",
+      "model": "claude-sonnet-5-5",
+      "input_tokens": 2272,
+      "output_tokens": 192,
+      "cache_read_input_tokens": 1903,
+      "cache_creation_input_tokens": 0,
+      "costUsd": 0.0068446
+    },
+    {
+      "purpose": "decide",
+      "model": "claude-sonnet-5-5",
+      "input_tokens": 2292,
+      "output_tokens": 100,
+      "cache_read_input_tokens": 1903,
+      "cache_creation_input_tokens": 0,
+      "costUsd": 0.0059646000000000005
+    },
+    {
+      "purpose": "decide",
+      "model": "claude-sonnet-5-5",
+      "input_tokens": 2318,
+      "output_tokens": 124,
+      "cache_read_input_tokens": 1903,
+      "cache_creation_input_tokens": 0,
+      "costUsd": 0.0062566
+    },
+    {
+      "purpose": "propose",
+      "model": "claude-sonnet-5-5",
+      "input_tokens": 1179,
+      "output_tokens": 313,
+      "cache_read_input_tokens": 609,
+      "cache_creation_input_tokens": 0,
+      "costUsd": 0.0056098
+    }
+  ]
+}
