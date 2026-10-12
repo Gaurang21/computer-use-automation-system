@@ -2,159 +2,137 @@
 
 ## Architecture
 
-The system is one Node process, a CLI, and JSON files on disk. There are three paths through it:
+The system is one Node process with a CLI and JSON files on disk. **Discovery** lets a model drive the app toward a goal, and a separate compiler turns the recorded trace into a capability. **Replay** runs a capability with typed inputs and no model, which is the path an agent would call in production. **Escalation** lets either path hand the live session to a person and take it back.
 
-- **Discovery** (`discover`): a model drives the app toward a goal and the run is recorded as a trace. A separate compiler then turns the trace into a capability.
-- **Replay** (`replay`): runs a capability with typed inputs and no model. This is the production path an agent would call.
-- **Escalation**: discovery and replay hand a live session to a person and get it back.
+The key boundary is the `Surface` interface (`observe`, `resolve`, `act`). Discovery, replay, policy and the operator console never touch a browser directly. The web implementation reads Chromium's accessibility tree for every frame and clicks and types with real input on each element's on-screen box. It never builds a CSS selector. Every action goes through `GuardedSurface`, which checks the control lease and then the policy gate, so no code path can skip either.
 
-Everything above one interface, `Surface` (`observe`, `resolve`, `act`, `location`), is surface-agnostic. Discovery, replay, policy and the operator console never see a browser, a frame or a DOM node. `PlaywrightSurface` builds its element list from Chromium's accessibility tree for every frame and acts with real mouse and keyboard input on each element's on-screen box. No CSS selector is ever built.
-
-Every action passes through `GuardedSurface`. It checks the control lease, then the policy gate, and only then calls the real surface. No code path can skip it.
-
-I rejected services, queues and a database. The brief penalizes premature infrastructure, and one process lets the operator console drive the exact browser that automation was using. The cost is that a run cannot outlive its process. A production version would put the session in a remote browser and keep the same lease and state machine.
+I chose one process over services and queues because the brief penalises early infrastructure, and because it lets the operator drive the exact browser the automation was using. The cost is that a run cannot outlive its process. In production the session would live in a remote browser, with the same lease and state machine.
 
 ## Artifact schema
 
-An artifact is three documents, all Zod schemas exported as JSON Schema in `/schemas`:
+A capability is spread over three documents, all Zod schemas exported as JSON Schema in `/schemas`:
 
-| Document       | Scope              | Holds                                                                                                                                                                  |
-| -------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| App profile    | one vendor product | fingerprint, tested versions, conditions that can appear on any screen (session expired, maintenance notice, permission denied, error page) and how to handle each     |
-| Capability     | one flow           | the contract: typed inputs and outputs with sensitivity, preconditions, ordered steps, step-scoped business outcomes, a success checkpoint, risk, approval, provenance |
-| Tenant overlay | one institution    | base URL, app version, label renames, version-scoped JSON patches, disabled capabilities, where its credentials come from                                              |
+- **App profile**, one per vendor product. It holds how to recognise the product, which versions were tested, and conditions that can appear on any screen, such as session expiry, maintenance notices, permission denial and error pages. Each condition says whether to recover, return a business outcome, or fail.
+- **Capability**, one per flow. This is the contract an agent calls: typed inputs and outputs, each with a sensitivity level, preconditions, ordered steps, business outcomes scoped to a step, a success check, risk, approval and provenance.
+- **Tenant overlay**, one per institution: base URL, version, label renames, version-scoped patches, and where that tenant's credentials come from.
 
-At load time the engine merges the three into an effective capability and logs its hash in every run.
+Each step has an intent, a risk level, whether it is safe to retry, a target, a value binding and an expected screen state. The target is an ordered list of locators: role and name, nearby label, text, structure, then last known position. The value binding looks like `inputs.memberId` or `secrets.operatorPassword`. Recorded literals never enter an artifact, and a test fails if any input value or secret does.
 
-A step names its intent, action, risk, whether it is safe to retry, a target, a value binding and an expected state. Targets are ordered locators: role and name, nearby label, visible text, structure, and a last-known bounding box. They describe what a desktop accessibility API can also answer. A step's value is always a binding (`inputs.memberId`, `secrets.operatorPassword`), never a recorded literal. A test fails if any demo input or secret appears in any artifact.
+One small matcher language describes screen states everywhere, so a reviewer can read it and the compiler can check it. Approval is tied to a content hash, so any edit sends the artifact back to draft. The model transcript stays in the evidence folder.
 
-Screen states use one small matcher language everywhere: `all`, `any`, `not`, `visible`, `textPresent` and `locationMatches`. A reviewer can read a matcher, and the compiler can check one against recorded screens.
-
-Approval binds a reviewer and a time to a content hash. Any edit changes the hash, so an edited artifact drops back to draft by itself. The model transcript is kept in evidence only. The artifact refers to it by run id and nothing more.
+I split the artifact so that tenant differences never force a re-recording. The cost is a merge at load time, so every run logs the hash of what it actually ran.
 
 ## Determinism & error handling
 
-Replay is act, then classify. After every action the engine polls the screen and must recognise it before doing anything else. The classification order is fixed:
+Replay acts, then classifies the screen, and it never moves past a screen it does not recognise. The order is fixed:
 
-1. The step's expected state holds: go to the next step.
-2. A business outcome scoped to this step matches: return it.
-3. An app-profile condition matches: recover with a bounded number of attempts, return the outcome, or stop on a hard failure.
+1. The step's expected state holds: go on.
+2. A business outcome for this step matches: return it.
+3. An app condition matches: recover with a bounded number of attempts, return the outcome, or fail.
 4. Nothing matches by the timeout: `UNEXPECTED_STATE`, which escalates.
 
-The result contract keeps three things apart:
+The result is exactly one of three kinds:
 
-- `success`, with typed outputs (money as integer minor units).
-- `business_outcome`, with a code and message. "No such member" is an answer, not a crash.
-- `failure`, with a code, the step, what was expected, what was observed, whether it is retryable, and a masked screenshot plus an observation dump.
+- `success`, with typed outputs (money as integer cents)
+- `business_outcome`, with a code and a message ("no such member" is an answer, not a crash)
+- `failure`, with the step, what was expected, what was seen, whether to retry, and a masked screenshot
 
-Recoverable conditions never surface as a status. They are handled in line and listed in `meta.recoveries`.
+Recoveries are listed in `meta.recoveries`. They never count as a status.
 
-A locator counts only when it matches exactly one element. A fallback locator that hits is recorded as `locatorDrift`, the early signal that a tenant's UI moved. When nothing resolves, the step fails with `TARGET_NOT_FOUND` or `TARGET_AMBIGUOUS`. The engine never guesses. Member 10007 has two savings accounts, and replay refuses to pick one.
+A locator counts only when it matches exactly one element. A fallback locator that hits is recorded as drift. When nothing matches, the step fails with `TARGET_NOT_FOUND` or `TARGET_AMBIGUOUS` rather than guessing; member 10007 has two savings accounts, and replay will not pick one.
 
-Two rules came from bugs the tests found:
+Two rules came from bugs:
 
-- After a click, the engine waits for the screen to actually change before classifying, so it never re-reads the page it just left.
-- Recovery that re-runs work checks that every step done so far is retry safe. Session expiry after Submit therefore escalates as `RETRY_UNSAFE` instead of silently submitting twice.
+- After a click, the engine waits for the screen to change, so it never misreads the page it just left.
+- A recovery that would repeat work first checks that every step so far is safe to retry. Session expiry after Submit escalates as `RETRY_UNSAFE` instead of submitting twice.
 
-The limit: matchers are text and structure. A screen that looks right but holds stale data would pass. A production version would add data-level assertions per step.
+The weakness is that matchers check text and structure, so a screen that looks right but holds stale data would pass.
 
 ## Heterogeneity & multi-tenant
 
-**Surfaces.** The seam is `Surface`. A legacy web app is the case already implemented: framesets, layout tables and unlabeled inputs. The one rule that makes unlabeled controls targetable is geometric: the label is the closest text to the left on the same row, otherwise the closest text above. Geometry exists on every surface.
+**Surfaces.** The legacy web case is built: framesets, layout tables, and inputs with no labels. One geometric rule makes unlabelled inputs findable: the label is the closest text to the left, otherwise the closest text above. Every surface has geometry. `DesktopSurface` is a stub that maps each method to Windows UI Automation, and the resolver, matchers, replay, policy and console would run on it unchanged.
 
-`DesktopSurface` implements the interface as a stub that maps each method to Windows UI Automation:
+**Tenants.** Product knowledge lives in the profile and the capabilities. Tenant differences live in the overlay. Most differences between institutions on the same product are renamed labels, so the overlay rewrites whole label strings at load time. Tenant B has a different version, labels, navigation order and branding, and replays tenant A's capability with no patches. When a rename is not enough, a patch is scoped to one capability and a version range.
 
-- control types map to the same role vocabulary
-- `ValuePattern`, `InvokePattern` and `SelectionItemPattern` cover type, click and select
-- `GridItemPattern` gives table rows and columns
+Drift shows up in three places:
 
-The resolver, matchers, replay engine, policy gate and operator console would run unchanged on it.
+- the app version on screen (writes refuse to run on an untested version)
+- locator fallbacks
+- the merged-artifact hash
 
-**Tenants.** Knowledge about the product lives in the profile and capabilities. Tenant differences live in the overlay. Most differences between institutions on the same vendor product are renames, so the overlay's `textMap` rewrites whole label strings in locators and matchers at load time. Tenant B, with version 7.2, different labels, a reordered nav and a different brand, replays tenant A's capability with no patches.
-
-When a rename is not enough, an overlay carries JSON Patch operations scoped to one capability and an app-version range. Drift is detected three ways:
-
-- the app version read from the screen is compared with the tested versions (writes refuse to run on an untested version)
-- locator fallbacks are recorded per step
-- the effective hash says exactly which merged artifact ran
-
-I did not build multi-tenant storage, cross-tenant drift dashboards or automatic overlay suggestions.
+The real runs showed the limit of renames. The model learned the not-found rule as "No member found for Member ID". Tenant B says "Account Holder No.", so a not-found there would escalate instead of returning the outcome. A one-line overlay patch fixes it, or a reviewer could shorten the rule. I did not build tenant storage or drift dashboards.
 
 ## Escalation & handoff
 
-**Detecting "stuck".** Discovery is stuck when the model calls `stuck`, or when the same action repeats three times on a screen with the same hash. Replay is stuck on:
+**When it escalates.**
 
-- `UNEXPECTED_STATE`
-- `TARGET_NOT_FOUND` or `TARGET_AMBIGUOUS`
-- `RECOVERY_EXHAUSTED`
-- `RETRY_UNSAFE`
+- Discovery: the model calls `stuck`, or repeats the same action three times on an unchanged screen.
+- Replay: an unrecognised screen, a missing or ambiguous target, a recovery that keeps failing, or a retry that is not safe.
+- An irreversible step in discovery raises an approval request.
 
-In discovery, an irreversible step raises an approval request instead.
+**The request.** It carries the run, the goal or capability, the step, the reason, expected versus observed, and a masked screenshot. It is saved with the run and sent through a `Notifier`.
 
-**The request.** It carries the run, the capability or goal, the step and its intent, the reason code, expected versus observed, the location and a masked screenshot. It is saved to the run's folder and sent through a `Notifier`. The console notifier and the operator page are built. A webhook notifier is written but not wired in.
+**Who is in control.** Control is a lease with exactly one holder, checked inside `GuardedSurface`, so a person and the automation can never act at once. A state machine moves it from running to paused (nobody holds it), to human control, to resuming. Approve, reject, abort and timeout are the other exits.
 
-**Control transfer.** Control is a lease with exactly one holder, checked inside `GuardedSurface.act`, so automation and a human can never act at once. A per-session state machine moves the lease:
+The console runs in the process that owns the browser. A click on the live screenshot becomes `Surface.act(…, 'human')` on the same session and is logged with the element under the pointer. Typed text is logged as its length only.
 
-| From                  | Event               | To                    | Lease holder |
-| --------------------- | ------------------- | --------------------- | ------------ |
-| RUNNING               | escalate            | PAUSED_AWAITING_HUMAN | none         |
-| PAUSED_AWAITING_HUMAN | take control        | HUMAN_CONTROL         | human        |
-| HUMAN_CONTROL         | hand back           | RESUMING              | automation   |
-| RESUMING              | resume check passes | RUNNING               | automation   |
+**Handing back.** Resuming is never blind:
 
-Approve, reject, abort and timeout are the other exits.
+- "Retry" re-runs the step, and is offered only when that is safe.
+- "Continue" first re-checks the step's expected state. If that fails, the run goes back to the person once, then fails.
 
-The operator console runs in the process that owns the browser. A click on the live screenshot becomes `Surface.act({ type: 'pointer' }, 'human')` on the same session, and the same logger records it along with the element under the pointer. Typed text is logged as its length only, since it may be a secret.
+The evidence shows this on a live session: an unknown dialog stopped replay, a scripted operator took over through the console API, clicked Acknowledge and handed back, and the run finished with `success`.
 
-**Resume is never blind.** "Retry" re-runs the step, and is offered only when that is retry safe. "Continue" first re-checks the step's expected state. A failed check goes back to the human once, then the run fails.
-
-**Mocked on purpose.** Operator authentication, assignment among several operators, and streamed video. The CLI blocks while a human has control. A production caller would get an immediate `needs_human` handle and resume asynchronously against the same hub.
+Operator login, routing between operators, and video are mocked. The CLI blocks while a person has control. A production caller would get a `needs_human` handle and resume later.
 
 ## Safety
 
-There are two layers of enforcement:
+Two layers enforce the allowlist:
 
-- **The policy gate** checks every action in both discovery and replay: allowed action types, allowed origins and routes, and risk. `/app/admin` and `/__chaos` are blocked.
-- **Network routing** aborts any request off the allowlist. This catches redirects and anything a harmless-looking click triggers. Clicking "Administration" is stopped here.
+- **The policy gate** checks every action, in discovery and replay, against allowed action types, origins, routes and risk.
+- **Network routing** aborts any request off the list. This catches redirects and anything a harmless-looking click triggers.
 
-The allowlist binds the human operator too. Action-level risk checks do not, because the human is the authority being asked.
+The operator is bound by the allowlist too, but not by action-level risk checks, because they are the person being asked.
 
-**Risk classes** are `read`, `reversible_write` and `irreversible`. A step's risk is the higher of its declared risk and a policy text hint (submit, confirm, transfer…), so hints can raise risk but never lower it.
+**Risk.** There are three levels: `read`, `reversible_write` and `irreversible`. A step's risk is the higher of what the artifact declares and a policy text hint such as "submit". In discovery, an irreversible step always waits for a person. In replay, it runs only if the artifact is approved and the caller passed `--confirm-irreversible`. Otherwise the run stops with `POLICY_BLOCKED`.
 
-- In discovery, an irreversible step always pauses for human approval.
-- In replay, it runs only when the artifact is approved and the caller passed `--confirm-irreversible`. Otherwise the run stops with `POLICY_BLOCKED`.
+**Data.** Each value is handled by its sensitivity:
 
-**Data handling** follows each value's declared sensitivity:
+- identifiers show their last two characters in logs
+- PII and financial values are redacted
+- secrets are never written or returned
 
-| Sensitivity    | In logs                                     |
-| -------------- | ------------------------------------------- |
-| identifier     | last two characters                         |
-| pii, financial | redacted                                    |
-| secret         | never written; never returned to the caller |
+Every value a run touches is also scrubbed from every saved file. A pattern scrubber catches SSNs, account numbers, card numbers, emails and money. Screenshots get boxes over sensitive fields. The model types secrets by name and never sees them.
 
-On top of that:
+The real run caught one gap: transcripts were written before a member's name had been read. They are now written at the end of the run.
 
-- Every value a run touches (inputs, outputs, secrets) is registered and scrubbed from every log line and saved file.
-- A pattern scrubber catches SSNs, account and card numbers, emails and money amounts.
-- Saved screenshots get solid boxes over elements labelled sensitive.
-- The model types secrets by name, so it never sees a password, and sign-on is replayed rather than discovered.
+**Limits.**
 
-**Limits, plainly:**
-
-- Discovery sends screen content to a model provider, so it must only run against synthetic or test records.
-- Risk hints are text patterns. A destructive button with a bland label gets past them, which is why risk is reviewed at approval.
-- Screenshot masking is a heuristic.
-- The operator sees the live session unmasked.
+- Discovery sends screens to a model provider, so it must run only on test data.
+- Text hints miss a destructive button with a bland label, which is why risk is reviewed at approval.
+- Masking is a heuristic.
+- The operator sees the live screen unmasked.
 
 ## Cuts
 
-- **The operator console is thin**: a polling page with screenshots twice a second, no authentication, a single operator, and a blocking CLI. The lease, the state machine and the human actions recorded through the surface are real.
-- **Desktop is a stub.** The interface and the mapping are real. No UI Automation code runs.
-- **Multi-tenant is files.** There is no tenant registry, no artifact storage service and no drift monitor. Overlays, version gating, drift signals and the effective hash are the parts I would keep.
-- **Masking is heuristic**, driven by labels and patterns.
-- **The evidence uses a scripted operator** to approve Submit and handle the unknown dialog. It is labelled as scripted.
-- **Next**, in order:
-  1. The approval gate with a reliability sidecar.
-  2. Multi-run stability stats.
-  3. A capability catalog that exposes approved capabilities as tool definitions.
-  4. A bounded, single-step assisted fallback on `TARGET_NOT_FOUND` that proposes a locator patch for review instead of editing the artifact.
+What is thin:
+
+- The operator console: it polls screenshots twice a second, with no login and one operator.
+- Desktop: a stub.
+- Multi-tenant: JSON files only, with no registry or drift monitor.
+- Masking: driven by labels and patterns.
+- The evidence uses a scripted operator for approval and handoff, labelled as such.
+
+The first real run found two bugs:
+
+- Probes and the self-check replayed an older saved file instead of the new draft.
+- A leak check rejected "$25.00" because it contained the input "5.00".
+
+Both are fixed and tested, and the evidence comes from the second run.
+
+Next, in order:
+
+1. An approval gate with a reliability score beside each capability.
+2. Repeated replays to measure stability.
+3. A catalog exposing approved capabilities as tool definitions.
+4. A single-step, policy-checked model fallback on `TARGET_NOT_FOUND` that proposes a locator fix for review instead of editing the artifact.
