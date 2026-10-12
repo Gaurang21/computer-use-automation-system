@@ -10,16 +10,35 @@ import type {
   Proposal,
   StepSummary,
   ToolCall,
+  TranscriptEntry,
 } from './brain.js';
+import { renderDecidePrompt } from './anthropic-brain.js';
 import type { Observation } from '../surface/types.js';
 
 export class FakeBrain implements Brain {
   readonly model = 'fake-llm';
   private turn = 0;
+  private sink: ((e: TranscriptEntry) => void) | undefined;
 
   constructor(private readonly script: NonNullable<GoalSpec['fake']>) {}
 
+  /** Records the same prompt text a real model would get, so fake runs exercise transcript redaction too. */
+  setTranscript(sink: (e: TranscriptEntry) => void): void {
+    this.sink = sink;
+  }
+
   async decide(ctx: DecideContext): Promise<ToolCall> {
+    const call = this.next(ctx);
+    this.sink?.({
+      purpose: 'decide',
+      model: this.model,
+      request: renderDecidePrompt(ctx),
+      response: call,
+    });
+    return call;
+  }
+
+  private next(ctx: DecideContext): ToolCall {
     const t = this.script.turns[this.turn++];
     if (!t) return { tool: 'stuck', reason: 'fake script ran out of turns', intent: 'Give up' };
     const ref = t.target ? this.find(ctx.observation, t) : '';

@@ -80,7 +80,13 @@ export async function discover(o: DiscoverOptions): Promise<DiscoverResult> {
     o.policy.sensitiveLabels,
   );
   o.spend.setFile(join(logger.dir, 'usage.json'));
-  o.brain.setTranscript?.((e) => logger.appendJsonl('transcript.redacted.jsonl', e));
+  // Buffered and written at the end: values read later in the run (a member's name) are only known
+  // to the redactor by then, and must be scrubbed from earlier exchanges too.
+  const transcript: unknown[] = [];
+  o.brain.setTranscript?.((e) => transcript.push(e));
+  const flushTranscript = () => {
+    for (const e of transcript.splice(0)) logger.appendJsonl('transcript.redacted.jsonl', e);
+  };
   logger.event({
     actor: 'system',
     type: 'run',
@@ -145,7 +151,7 @@ export async function discover(o: DiscoverOptions): Promise<DiscoverResult> {
       });
       if (r.status !== 'success') {
         result.reason = `precondition ${pre} ended with ${r.status}`;
-        return finish(result, o, logger);
+        return finish(result, o, logger, flushTranscript);
       }
     }
     if (spec.preconditions.length === 0 || spec.startPath !== '/') {
@@ -173,7 +179,7 @@ export async function discover(o: DiscoverOptions): Promise<DiscoverResult> {
   }
   if (result.trace.status !== 'done') {
     result.reason = result.trace.reason ?? result.trace.status;
-    return finish(result, o, logger);
+    return finish(result, o, logger, flushTranscript);
   }
 
   // Compile.
@@ -205,7 +211,7 @@ export async function discover(o: DiscoverOptions): Promise<DiscoverResult> {
   if (!compiled.capability) {
     result.status = 'rejected';
     result.reason = compiled.rejected ?? 'compile failed';
-    return finish(result, o, logger);
+    return finish(result, o, logger, flushTranscript);
   }
   let cap = compiled.capability;
   logger.writeJson('capability.draft.json', cap);
@@ -256,7 +262,9 @@ export async function discover(o: DiscoverOptions): Promise<DiscoverResult> {
       if (verdict.kind === 'business_outcome' && verdict.code && verdict.textPresent) {
         const detect = { textPresent: verdict.textPresent };
         const valid = matches(seen.obs, detect) && (!happyAfter || !matches(happyAfter, detect));
-        const leaks = Object.values(inputs).some((v) => verdict.textPresent?.includes(v));
+        const leaks = Object.values(inputs).some((v) =>
+          containsValue(verdict.textPresent ?? '', v),
+        );
         if (valid && !leaks) {
           cap = {
             ...cap,
@@ -324,10 +332,16 @@ export async function discover(o: DiscoverOptions): Promise<DiscoverResult> {
       2,
     ) + '\n',
   );
-  return finish(result, o, logger);
+  return finish(result, o, logger, flushTranscript);
 }
 
-function finish(result: DiscoverResult, o: DiscoverOptions, logger: RunLogger): DiscoverResult {
+function finish(
+  result: DiscoverResult,
+  o: DiscoverOptions,
+  logger: RunLogger,
+  flushTranscript: () => void,
+): DiscoverResult {
+  flushTranscript();
   result.spendUsd = o.spend.totalUsd;
   logger.writeJson('discovery-result.json', {
     status: result.status,
@@ -355,4 +369,14 @@ class CapturingEscalation implements Escalation {
       note: 'probe run: captured for classification',
     };
   }
+}
+
+/**
+ * Whether an input value appears in text as a value of its own, not as part
+ * of a longer number: "5.00" is in "deposit 5.00" but not in "$25.00".
+ */
+export function containsValue(text: string, value: string): boolean {
+  if (value.length < 2) return false;
+  const escaped = value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`(?<![\\w.,])${escaped}(?![\\w]|[.,]\\d)`).test(text);
 }

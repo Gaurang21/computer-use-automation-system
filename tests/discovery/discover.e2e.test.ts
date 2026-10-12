@@ -104,6 +104,10 @@ describe('discovery with the fake LLM, then replay of what it produced', () => {
       calls: 0,
     });
     expect(readFileSync(join(result.dir, 'run.jsonl'), 'utf8')).not.toMatch(/10001|Avery|12,540/);
+    // The transcript holds the full screens shown to the model, written after every value is known.
+    const transcript = readFileSync(join(result.dir, 'transcript.redacted.jsonl'), 'utf8');
+    expect(transcript).toContain('Member Detail');
+    expect(transcript).not.toMatch(/10001|Avery Lindqvist|12,540/);
   });
 
   it('replays the discovered capability: success, and the probed business outcome', async () => {
